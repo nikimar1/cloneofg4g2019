@@ -177,8 +177,9 @@ Engine/Source/Programs/AutomationTool/BuildGraph/BuildGraph.Automation.xml
 # Ignore exp files in the the Engine/Binaries directory as they aren't C/C++ source files
 /Engine/Binaries/**/*.exp
 
-# Ignore content folders
-Content/
+# Allow Project content folders, but ignore Engine content
+!/*/Content/**
+/Engine/**/Content/**
 
 # Ignore DDC
 /Engine/DerivedDataCache/**
