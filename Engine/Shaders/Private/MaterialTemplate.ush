@@ -1557,6 +1557,13 @@ float3 DecodeSceneColorForMaterialNode(float2 ScreenUV)
 
 #endif // SHADING_PATH_DEFERRED
 
+float CloudDensity(float3 P)
+{
+	float Mask = saturate(smoothstep(1,0, dot(P,P)));
+	float Noise = saturate(0.6 * FastGradientPerlinNoise3D_TEX(4*P) + 0.4);
+	return Mask * Noise;
+}
+
 // Uniform material expressions.
 %s
 
