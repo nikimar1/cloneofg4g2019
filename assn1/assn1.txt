@@ -1,0 +1,14 @@
+Name: Nikita Markovych ID: SC34973
+
+OS: macOS Mojave Version 10.14.6 
+CPU: 2.7GHz quad-core Intel Core i5 processor 
+GPU: Intel Iris Pro 1536 MB 
+Computer Model: IMAC Late 2013 (Purchased new in 2015-16)
+
+It seems everything was working for the project except xcode was not detected by UE4. 
+This might be due to an outdated xcode installation. Either way, this just meant some
+shaders were not precompiled and were therefore slower to load. UE4 does work rather
+slowly at times and build time was a little over 2 hours.
+
+My video:
+https://www.youtube.com/watch?v=HTmg_1zxxnU&feature=youtu.be
