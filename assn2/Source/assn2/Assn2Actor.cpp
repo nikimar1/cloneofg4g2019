@@ -28,13 +28,18 @@ AAssn2Actor::AAssn2Actor()
     check(SceneComponent != nullptr);
     this->RootComponent = SceneComponent;
     
+    
+    //on construction overriden function
+    
+    
+    
     //created static mesh component
     StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KeyMesh"));
     StaticMeshComponent->SetMobility(EComponentMobility::Movable);
     StaticMeshComponent->SetupAttachment(RootComponent);
     StaticMeshComponent->SetStaticMesh(StaticMesh);
-    //using default material so commented out
-    //StaticMeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, Material);
+    //using setmaterial and our member variable instead
+    StaticMeshComponent->SetMaterial(0, ActorMaterial);
     
     StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
