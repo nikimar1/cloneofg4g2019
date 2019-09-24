@@ -20,9 +20,22 @@ public:
 	// Sets default values for this actor's properties
 	AAssn2Actor();
 
-protected:
+    
+//protected:
 
-public:
+//public:
+    
+//start of my code
+private:
+    //Creating static mesh component. Leaving uproperty for now but later maybe remove it
+    UPROPERTY()
+    class UStaticMeshComponent* StaticMeshComponent;
+    
+    //Scene component. I believe I am actually setting another scene component
+    //to root in cpp file and do not need this code.
+    //UPROPERTY()
+    //USceneComponent* AssociatedComponent;
+
 	
 };
 
