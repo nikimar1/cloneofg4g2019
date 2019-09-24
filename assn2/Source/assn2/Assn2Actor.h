@@ -16,12 +16,14 @@ class ASSN2_API AAssn2Actor : public AActor
 {
 	GENERATED_BODY()
     
-    //my overriden on construction function
-    virtual void onConstruction(UStaticMesh* assn2Mesh) override;
+    
 	
 public:	
 	// Sets default values for this actor's properties
 	AAssn2Actor();
+    
+    //my overriden on construction function
+    virtual void OnConstruction(const FTransform& transform) override;
 
     
 //protected:
@@ -38,7 +40,7 @@ private:
     UStaticMesh* ActorMesh;
     
     UPROPERTY(EditAnywhere)
-    Umaterial* ActorMaterial;
+    UMaterial* ActorMaterial;
     
     //Scene component. I believe I am actually setting another scene component
     //to root in cpp file and do not need this code.

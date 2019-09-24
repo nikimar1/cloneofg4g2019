@@ -17,10 +17,11 @@ AAssn2Actor::AAssn2Actor()
     
     //my code below here
     
+    //commented out because I am now setting mesh in onconstruction override
     //created static mesh as sphere via FObjectFinder
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshRef(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
-    UStaticMesh* StaticMesh = MeshRef.Object;
-    check(StaticMesh != nullptr);
+    //static ConstructorHelpers::FObjectFinder<UStaticMesh> //MeshRef(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
+    //UStaticMesh* StaticMesh = MeshRef.Object;
+    //check(StaticMesh != nullptr);
     
     //created USceneComponent for Actor Placement
     const bool bTransient = true;
@@ -29,15 +30,12 @@ AAssn2Actor::AAssn2Actor()
     this->RootComponent = SceneComponent;
     
     
-    //on construction overriden function
-    
-    
-    
     //created static mesh component
     StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KeyMesh"));
     StaticMeshComponent->SetMobility(EComponentMobility::Movable);
     StaticMeshComponent->SetupAttachment(RootComponent);
-    StaticMeshComponent->SetStaticMesh(StaticMesh);
+    //setting this in on construction instead
+    //StaticMeshComponent->SetStaticMesh(StaticMesh);
     //using setmaterial and our member variable instead
     StaticMeshComponent->SetMaterial(0, ActorMaterial);
     
@@ -54,6 +52,14 @@ AAssn2Actor::AAssn2Actor()
     
     
 
+}
+
+//on construction overriden function
+void AAssn2Actor::OnConstruction(const FTransform& transform)
+{
+    Super::OnConstruction(transform);
+    StaticMeshComponent->SetStaticMesh(ActorMesh);
+    
 }
 
 //commenting out stuff I don't need
