@@ -73,13 +73,13 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     
     //Attempting it all in one line to test if I am truly adding instances
     
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector(0, -50, 0)));
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector(-50, 0, 0)));
     
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(-50, 0, 0)));
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, -50, 0)));
     
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(50, 0, 0)));
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, 50, 0)));
     
-    StaticMeshComponent->AddInstance(FTransform(FRotator(0, 90, 0), FVector(0, 50, 0)));
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector(50, 0, 0)));
     
     //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
