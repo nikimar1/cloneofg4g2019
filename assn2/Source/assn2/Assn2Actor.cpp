@@ -32,23 +32,23 @@ AAssn2Actor::AAssn2Actor()
     
     //created static mesh component
     StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KeyMesh"));
-    StaticMeshComponent->SetMobility(EComponentMobility::Movable);
+    //StaticMeshComponent->SetMobility(EComponentMobility::Movable);
     StaticMeshComponent->SetupAttachment(RootComponent);
     //setting this in on construction instead
     //StaticMeshComponent->SetStaticMesh(StaticMesh);
-    //using setmaterial and our member variable instead
-    StaticMeshComponent->SetMaterial(0, ActorMaterial);
+   
+    //commented out a bunch of stuff. remove it when finalizing actor files
     
-    StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-    StaticMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+    //StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    //StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+    //StaticMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
     
-    StaticMeshComponent->SetGenerateOverlapEvents(false);
-    StaticMeshComponent->SetCanEverAffectNavigation(false);
-    StaticMeshComponent->bCastDynamicShadow = false;
-    StaticMeshComponent->bCastStaticShadow = false;
-    StaticMeshComponent->bAffectDistanceFieldLighting = false;
-    StaticMeshComponent->bAffectDynamicIndirectLighting = false;
+    //StaticMeshComponent->SetGenerateOverlapEvents(false);
+    //StaticMeshComponent->SetCanEverAffectNavigation(false);
+    //StaticMeshComponent->bCastDynamicShadow = false;
+    //StaticMeshComponent->bCastStaticShadow = false;
+    //StaticMeshComponent->bAffectDistanceFieldLighting = false;
+    //StaticMeshComponent->bAffectDynamicIndirectLighting = false;
     
     
 
@@ -58,7 +58,12 @@ AAssn2Actor::AAssn2Actor()
 void AAssn2Actor::OnConstruction(const FTransform& transform)
 {
     Super::OnConstruction(transform);
+    
+    //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
+    
+    //using setmaterial and our member variable
+    StaticMeshComponent->SetMaterial(0, ActorMaterial);
     
 }
 
