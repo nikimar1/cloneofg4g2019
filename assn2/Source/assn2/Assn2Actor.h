@@ -9,7 +9,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//adding this include for instanced static mesh component just in case
+//adding this include for instanced static mesh component
 #include "Components/InstancedStaticMeshComponent.h"
 
 #include "Assn2Actor.generated.h"
@@ -29,31 +29,19 @@ public:
     //my overriden on construction function
     virtual void OnConstruction(const FTransform& transform) override;
 
-    
-//protected:
-
-//public:
-    
-//start of my code
 private:
     
+    //mesh type
     UPROPERTY(EditAnywhere)
     UStaticMesh* ActorMesh;
     
+    //material type
     UPROPERTY(EditAnywhere)
     UMaterial* ActorMaterial;
     
-    //moved it back
-    //Creating static mesh component. Leaving uproperty for now but later maybe remove it
-    //Changed it to make it instanced
+    //Creating instanced static mesh component.
     UPROPERTY()
     class UInstancedStaticMeshComponent* StaticMeshComponent;
-    
-    //Scene component. I believe I am actually setting another scene component
-    //to root in cpp file and do not need this code.
-    //UPROPERTY()
-    //USceneComponent* AssociatedComponent;
-
 	
 };
 

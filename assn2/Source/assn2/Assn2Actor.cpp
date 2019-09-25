@@ -11,17 +11,6 @@
 // Sets default values
 AAssn2Actor::AAssn2Actor()
 {
-    //commenting out stuff I don't need
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
-    
-    //my code below here
-    
-    //commented out because I am now setting mesh in onconstruction override
-    //created static mesh as sphere via FObjectFinder
-    //static ConstructorHelpers::FObjectFinder<UStaticMesh> //MeshRef(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
-    //UStaticMesh* StaticMesh = MeshRef.Object;
-    //check(StaticMesh != nullptr);
     
     //created USceneComponent for Actor Placement
     const bool bTransient = true;
@@ -32,27 +21,27 @@ AAssn2Actor::AAssn2Actor()
     
     //created static mesh component
     StaticMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MeshComponent"));
-    //StaticMeshComponent->SetMobility(EComponentMobility::Movable);
     StaticMeshComponent->SetupAttachment(RootComponent);
-    //setting this in on construction instead
-    //StaticMeshComponent->SetStaticMesh(StaticMesh);
-   
-    //commented out a bunch of stuff. remove it when finalizing actor files
-    
-    //StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    //StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-    //StaticMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-    
-    //StaticMeshComponent->SetGenerateOverlapEvents(false);
-    //StaticMeshComponent->SetCanEverAffectNavigation(false);
-    //StaticMeshComponent->bCastDynamicShadow = false;
-    //StaticMeshComponent->bCastStaticShadow = false;
-    //StaticMeshComponent->bAffectDistanceFieldLighting = false;
-    //StaticMeshComponent->bAffectDynamicIndirectLighting = false;
-    
-    
 
 }
+
+//Creating a matrix node struct for holding all coordinates of 5x5 grid
+//For some reason could not place this in header. Type was not recognized
+typedef struct myMatrixNode
+{
+    
+    //rotation
+    float pitch;
+    float roll;
+    
+    //translation
+    float x;
+    float y;
+    
+}myMatrixNode;
+
+//created array of matrix node strucs via initialization list
+myMatrixNode matrixArray[60] = {{90,0,50,0},{90,0,-50,0},{90,90,0,-50},{90,90,0,50},{90,0,-150,0},{90,90,-100,-50},{90,90,-100,50},{90,0,-250,0},{90,90,-200,-50},{90,90,-200,50},{90,0,150,0},{90,90,100,-50},{90,90,100,50},{90,0,250,0},{90,90,200,-50},{90,90,200,50},{90,0,50,-100},{90,0,-50,-100},{90,90,0,-150},{90,0,-150,-100},{90,90,-100,-150},{90,0,-250,-100},{90,90,-200,-150},{90,0,150,-100},{90,90,100,-150},{90,0,250,-100},{90,90,200,-150},{90,0,50,-200},{90,0,-50,-200},{90,90,0,-250},{90,0,-150,-200},{90,90,-100,-250},{90,0,-250,-200},{90,90,-200,-250},{90,0,150,-200},{90,90,100,-250},{90,0,250,-200},{90,90,200,-250},{90,0,50,100},{90,0,-50,100},{90,90,0,150},{90,0,-150,100},{90,90,-100,150},{90,0,-250,100},{90,90,-200,150},{90,0,150,100},{90,90,100,150},{90,0,250,100},{90,90,200,150},{90,0,50,200},{90,0,-50,200},{90,90,0,250},{90,0,-150,200},{90,90,-100,250},{90,0,-250,200},{90,90,-200,250},{90,0,150,200},{90,90,100,250},{90,0,250,200},{90,90,200,250}};
 
 //on construction overriden function
 void AAssn2Actor::OnConstruction(const FTransform& transform)
@@ -62,24 +51,19 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     //clearing instances to reset tarray of instances at start of onconstruction
     StaticMeshComponent->ClearInstances();
     
-    //const FRotator& myRotater= FRotator(90, 90, 0);
-    //const FVector& myVector= FVector(0, -50, 0);
+    //I am now using a for loop to create my 5x5 grid from the matrix array
     
-    //constructor for rotation and translation transform
-   // const FTransform &InstanceTransform = FTransform(myRotater, myVector);
-    
-    //add instance with this transform
-    //StaticMeshComponent->AddInstance(InstanceTransform);
-    
-    //Attempting it all in one line to test if I am truly adding instances
-    
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector(-50, 0, 0)));
-    
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, -50, 0)));
-    
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, 50, 0)));
-    
-    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector(50, 0, 0)));
+    for(int i = 0; i <60; i++)
+    {
+        //rotation
+        float pitch = matrixArray[i].pitch;
+        float roll = matrixArray[i].roll;
+        
+        //translation
+        float x = matrixArray[i].x;
+        float y = matrixArray[i].y;
+        StaticMeshComponent->AddInstance(FTransform(FRotator(pitch, roll, 0), FVector(x, y, 0)));
+    }
     
     //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
@@ -90,22 +74,6 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
    
     
 }
-
-//commenting out stuff I don't need
-// Called when the game starts or when spawned
-//void AAssn2Actor::BeginPlay()
-//{
-//	Super::BeginPlay();
-	
-//}
-
-//// Called every frame
-//void AAssn2Actor::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-
-//}
-
 
 #ifdef __clang__
 #pragma clang optimize on
