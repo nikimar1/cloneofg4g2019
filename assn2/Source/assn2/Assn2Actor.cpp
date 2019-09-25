@@ -31,7 +31,7 @@ AAssn2Actor::AAssn2Actor()
     
     
     //created static mesh component
-    StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KeyMesh"));
+    StaticMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MeshComponent"));
     //StaticMeshComponent->SetMobility(EComponentMobility::Movable);
     StaticMeshComponent->SetupAttachment(RootComponent);
     //setting this in on construction instead
@@ -59,11 +59,33 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
 {
     Super::OnConstruction(transform);
     
+    //clearing instances to reset tarray of instances at start of onconstruction
+    StaticMeshComponent->ClearInstances();
+    
+    //const FRotator& myRotater= FRotator(90, 90, 0);
+    //const FVector& myVector= FVector(0, -50, 0);
+    
+    //constructor for rotation and translation transform
+   // const FTransform &InstanceTransform = FTransform(myRotater, myVector);
+    
+    //add instance with this transform
+    //StaticMeshComponent->AddInstance(InstanceTransform);
+    
+    //Attempting it all in one line to test if I am truly adding instances
+    
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, -50, 0)));
+    
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, -50, 200)));
+    
+    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector(0, -50, 400)));
+    
     //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
     
     //using setmaterial and our member variable
     StaticMeshComponent->SetMaterial(0, ActorMaterial);
+    
+   
     
 }
 
