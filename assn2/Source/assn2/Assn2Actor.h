@@ -48,6 +48,12 @@ public:
     //void remove (int removed);
 
 
+    //this will be an array of vectors to remove from maze walls
+    TArray<FVector> toRemove;
+
+    //function for checking if instance should be added or not
+    //bool checkRemove(FVector check);
+
     //arraylist for holding every instances as it was added in order
     //keeps track of planes so they can be removed 
     //TArray<FVector> transformList;
@@ -87,30 +93,15 @@ private:
     UPROPERTY()
     class UInstancedStaticMeshComponent* StaticMeshComponent;
 
-    /*
-    //Creating 4 spheres for tracking overlap and position in maze
-    UPROPERTY()
-    class UStaticMeshComponent sphereAbove
-
-    //Creating instanced static mesh component.
-    UPROPERTY()
-    class UStaticMeshComponent* sphereBelow;
-
-    //Creating instanced static mesh component.
-    UPROPERTY()
-    class UStaticMeshComponent* sphereLeft;
-
-    //Creating instanced static mesh component.
-    UPROPERTY()
-    class UStaticMeshComponent* sphereRight;
-
-    */
     
     //for forcing rerun of on construction via boolean check mark
     UPROPERTY(EditAnywhere) bool Update;
     
     //for random seed generation
     UPROPERTY(EditAnywhere) int RandomSeed;
+
+    //reset list of planes to remove
+    toRemove.Empty();
     
     
 };

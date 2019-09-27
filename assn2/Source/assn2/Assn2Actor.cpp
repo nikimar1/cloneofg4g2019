@@ -36,6 +36,11 @@ struct myVisited visitedArray[5];
 // Sets default values
 AAssn2Actor::AAssn2Actor()
 {
+
+    //initialize list of walls to remove. wait maybe I don't need a list initializer
+    //toRemove=TArray();
+
+
     //2d arrays dont work in ue4 so delete this later
     //Creating structure for holding 2d array of visited nodes.
     //visited = new bool*[5];
@@ -301,7 +306,7 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
     return false;
 }
 
-
+/*
 //find instance with appropriate transform for removal
 int AAssn2Actor::FindPlane(FVector remove)
 {
@@ -317,21 +322,8 @@ int AAssn2Actor::FindPlane(FVector remove)
         UE_LOG(LogTemp, Warning, TEXT("Some kind of error with finding overlap with x = %f, y= %f z=%f "),remove.X, remove.Y, remove.Z);
         return -1;
     }
-    /*
-    int found = -1;
-    for(int32 Index = 0 ; Index != transformList.Num(); ++Index)
-    {
-        //If they are equal within tolerance for error of 1
-        //return index where they are equal
-        if(transformList[Index].Equals(remove, 1))
-        {
-            found = Index;
-            break;
-        }
-
-    }
-    */
 }
+*/
 
 
 //creates and renders maze
@@ -441,12 +433,14 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
 
                     Right.Set(currentRight.X+100, currentRight.Y, currentRight.Z);
 
+
+                    toRemove.Add(currentLeft);
                     //find which plane to remove
-                    int removal = FindPlane(currentLeft);
+                    //int removal = FindPlane(currentLeft);
                     //remove it from my list of transforms
                     //transformList.RemoveAt(removal);
                     //remove it from my instances
-                    StaticMeshComponent->RemoveInstance(removal);
+                    //StaticMeshComponent->RemoveInstance(removal);
 
                     //find coordinate from adjacency list, remove correct plane, 
                     //and adjust adjacency matrix
@@ -480,12 +474,13 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                     Right.Set(currentRight.X-100, currentRight.Y, currentRight.Z);
 
                     
+                    toRemove.Add(currentRight);
                     //find which plane to remove
-                    int removal = FindPlane(currentRight);
+                    //int removal = FindPlane(currentRight);
                     //remove it from my list of transforms
                     //transformList.RemoveAt(removal);
                     //remove it from my instances
-                    StaticMeshComponent->RemoveInstance(removal);
+                    //StaticMeshComponent->RemoveInstance(removal);
 
                     //find coordinate from adjacency list, remove correct plane, 
                     //and adjust adjacency matrix
@@ -519,12 +514,13 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
 
                     Right.Set(currentRight.X, currentRight.Y+100, currentRight.Z);
 
-                     //find which plane to remove
-                    int removal = FindPlane(currentAbove);
+                    toRemove.Add(currentAbove);
+                    //find which plane to remove
+                    //int removal = FindPlane(currentAbove);
                     //remove it from my list of transforms
                     //transformList.RemoveAt(removal);
                     //remove it from my instances
-                    StaticMeshComponent->RemoveInstance(removal);
+                    //StaticMeshComponent->RemoveInstance(removal);
 
                     //find coordinate from adjacency list, remove correct plane, 
                     //and adjust adjacency matrix
@@ -556,12 +552,13 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
 
                     Right.Set(currentRight.X, currentRight.Y-100, currentRight.Z);
 
+                    toRemove.Add(currentBelow);
                     //find which plane to remove
-                    int removal = FindPlane(currentBelow);
+                    //int removal = FindPlane(currentBelow);
                     //remove it from my list of transforms
                     //transformList.RemoveAt(removal);
                     //remove it from my instances
-                    StaticMeshComponent->RemoveInstance(removal);
+                    //StaticMeshComponent->RemoveInstance(removal);
                     
                     //find coordinate from adjacency list, remove correct plane, 
                     //and adjust adjacency matrix
@@ -587,6 +584,7 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
     return;
     
 }
+
 
 //This will hold the
 //on construction overriden function
@@ -702,48 +700,8 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     //Right.Y= (-200 + (startY*100));
     
     
-    //I am now using a for loop to create my 5x5 grid from the matrix array
-    //Later I will remove walls as necessary via recursive backtrack
-    //Also storing list of maze wall (plane) transforms so as I remove instances of the mesh,
-    // I can continue to track plane instances.
-    for(int i = 1; i<6 ; i++)
-    {
-        for(int j =1; j <6; j++)
-        {
-            if(j== 1 )
-            {
-                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
-                //draw bottom-most wall. loops through i but not j
-                StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-350, 100)));
-            }
-            
-            if(i == 1)
-            {
-                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
-                //draw rightmost wall. loops through j but not i
-                StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-400,(j*100)-300, 100)));
-            }
-            
-            
-            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
-            //draw top wall iteratively with each loop
-            StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-250, 100)));
-            
-            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
-            //draw left wall iteratively with each loop
-            StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-300,(j*100)-300, 100)));
-            
-        }
-    }
     
-    //Always make arbitrary entrances to maze on opposite corners.
-    //Recursive backtracking creates inside of maze but entrance and exit
-    //would be out of bounds breakthroughs.
-    //transformList.RemoveAt(1);
-    StaticMeshComponent->RemoveInstance(1);
 
-    //transformList.RemoveAt(58);
-    StaticMeshComponent->RemoveInstance(58);
     
 
     //adjust adjacency list. don't need to bother to adjust for 58 since it is last node
@@ -799,6 +757,53 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     }
     
     UE_LOG(LogTemp, Warning, TEXT("end of last visited loop\n \n \n "));
+
+
+    //I am now using a for loop to create my 5x5 grid from the matrix array
+    //Later I will remove walls as necessary via recursive backtrack
+    //Also storing list of maze wall (plane) transforms so as I remove instances of the mesh,
+    // I can continue to track plane instances.
+    for(int i = 1; i<6 ; i++)
+    {
+        for(int j =1; j <6; j++)
+        {
+            if(j== 1 )
+            {
+                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+                //draw bottom-most wall. loops through i but not j
+
+                if(!toRemove.Contains(FVector((i*100)-350,(j*100)-350, 100)))
+                    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-350, 100)));
+            }
+            
+            if(i == 1)
+            {
+                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+                //draw rightmost wall. loops through j but not i
+                if(!toRemove.Contains(FVector((i*100)-400,(j*100)-300, 100)))
+                    StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-400,(j*100)-300, 100)));
+            }
+            
+            
+            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+            //draw top wall iteratively with each loop
+            if(!toRemove.Contains(FVector((i*100)-350,(j*100)-250, 100)))
+                StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-250, 100)));
+            
+            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+            //draw left wall iteratively with each loop
+            if(!toRemove.Contains(FVector((i*100)-300,(j*100)-300, 100)))
+                StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-300,(j*100)-300, 100)));
+            
+        }
+    }
+
+
+    //Always make arbitrary entrances to maze on opposite corners.
+    //Recursive backtracking creates inside of maze but entrance and exit
+    //would be out of bounds breakthroughs.
+    StaticMeshComponent->RemoveInstance(1);
+    StaticMeshComponent->RemoveInstance(StaticMeshComponent->GetInstanceCount()-1);
     
     //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
