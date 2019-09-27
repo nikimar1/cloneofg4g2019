@@ -101,9 +101,20 @@ AAssn2Actor::AAssn2Actor()
     this->RootComponent = SceneComponent;
     
     
-    //created static mesh component
+    //created instanced static mesh component
     StaticMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MeshComponent"));
     StaticMeshComponent->SetupAttachment(RootComponent);
+
+    StaticMeshComponent->SetGenerateOverlapEvents(true);
+
+
+   // sphereAbove = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
+
+   // sphereBelow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
+
+    //sphereLeft = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
+
+    //sphereRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
     
 }
 
@@ -254,7 +265,7 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
     switch(move)
     {
         case 1:
-            if((startCoordX+1)<4 && !visitedArray[startCoordX+1].myY[startCoordY])
+            if(((startCoordX+1)<=4) && !(visitedArray[startCoordX+1].myY[startCoordY]))
             {
                 return true;
             }
@@ -262,7 +273,7 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
             break;
             
         case 2:
-            if((startCoordX-1)>0 && !visitedArray[startCoordX-1].myY[startCoordY])
+            if(((startCoordX-1)>=0) && !(visitedArray[startCoordX-1].myY[startCoordY]))
             {
                 return true;
             }
@@ -270,7 +281,7 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
             break;
             
         case 3:
-            if((startCoordY+1)<4 && !visitedArray[startCoordX].myY[startCoordY+1])
+            if(((startCoordY+1)<=4) && !(visitedArray[startCoordX].myY[startCoordY+1]))
             {
                 return true;
             }
@@ -278,7 +289,7 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
             break;
             
         case 4:
-            if((startCoordY-1)>0 && !visitedArray[startCoordX].myY[startCoordY-1])
+            if(((startCoordY-1)>=0) && !(visitedArray[startCoordX].myY[startCoordY-1]))
             {
                 return true;
             }
@@ -294,7 +305,19 @@ bool AAssn2Actor::allowedMove(int move, int startCoordX, int startCoordY)
 //find instance with appropriate transform for removal
 int AAssn2Actor::FindPlane(FVector remove)
 {
-    
+
+
+
+    TArray<int32> foundOverlaps = StaticMeshComponent->GetInstancesOverlappingSphere(remove,100, false);
+
+    if(foundOverlaps.Num()>0)
+        return foundOverlaps.Pop(false);
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Some kind of error with finding overlap with x = %f, y= %f z=%f "),remove.X, remove.Y, remove.Z);
+        return -1;
+    }
+    /*
     int found = -1;
     for(int32 Index = 0 ; Index != transformList.Num(); ++Index)
     {
@@ -307,7 +330,7 @@ int AAssn2Actor::FindPlane(FVector remove)
         }
 
     }
-    return found;
+    */
 }
 
 
@@ -316,13 +339,15 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
     FVector currentLeft, FVector currentRight)
 {
 
-    //UE_LOG(genLog, Warning, TEXT("This is build path starting at coordinates (%d,%d)", startCoordX, startCoordY);
+
+
+    
     //printFString("This is build path starting at coordinates (%s,%s)", startCoordX, startCoordY);
 
 
     //print("I shall now print the current state of the visited 2d matrix");
 
-    for(int q = 0; q<5; q++)
+/*    for(int q = 0; q<5; q++)
     {
         for(int w= 0; w <5; w++)
         {
@@ -351,6 +376,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
     //print("end of visited loop");
     UE_LOG(LogTemp, Warning, TEXT("end of visited loop"));
 
+    */
+
     //dummy vector for parsing next adjacent coordinates
     FVector Above=   FVector();
     FVector Below =  FVector();
@@ -377,6 +404,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
     {
         UE_LOG(LogTemp, Warning, TEXT("I am trying the direction %d (reminder 1 = left 2 =right 3 = up 4 = down"), directions[i]);
 
+        UE_LOG(LogTemp, Warning, TEXT("This is for the build path starting at coordinates (%d,%d)"), startCoordX, startCoordY);
+
         //FString tempOne = FString::FromInt(directions[i]);
         //printFString("I am trying the direction %s. (reminder 1 = left 2 =right 3 = up 4 = down",*tempOne);
 
@@ -395,7 +424,9 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                 case 1:
                 {
 
-                     UE_LOG(LogTemp, Warning, TEXT("moving left"));
+                    UE_LOG(LogTemp, Warning, TEXT("moving left"));
+
+                    UE_LOG(LogTemp, Warning, TEXT("I am moving to coordinates (%d,%d)"), startCoordX+1, startCoordY);
                     //print("moving left");
 
                     //update visited
@@ -413,7 +444,7 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                     //find which plane to remove
                     int removal = FindPlane(currentLeft);
                     //remove it from my list of transforms
-                    transformList.RemoveAt(removal);
+                    //transformList.RemoveAt(removal);
                     //remove it from my instances
                     StaticMeshComponent->RemoveInstance(removal);
 
@@ -433,6 +464,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                 {
 
                     UE_LOG(LogTemp, Warning, TEXT("moving right"));
+
+                    UE_LOG(LogTemp, Warning, TEXT("I am moving to coordinates (%d,%d)"), startCoordX-1, startCoordY);
                     //print("moving right");
 
                     visitedArray[startCoordX-1].myY[startCoordY]=true;
@@ -450,7 +483,7 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                     //find which plane to remove
                     int removal = FindPlane(currentRight);
                     //remove it from my list of transforms
-                    transformList.RemoveAt(removal);
+                    //transformList.RemoveAt(removal);
                     //remove it from my instances
                     StaticMeshComponent->RemoveInstance(removal);
 
@@ -471,6 +504,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
 
 
                     UE_LOG(LogTemp, Warning, TEXT("moving up"));
+
+                    UE_LOG(LogTemp, Warning, TEXT("I am moving to coordinates (%d,%d)"), startCoordX, startCoordY+1);
                     //print("moving up");
 
                     visitedArray[startCoordX].myY[startCoordY+1]=true;
@@ -487,7 +522,7 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                      //find which plane to remove
                     int removal = FindPlane(currentAbove);
                     //remove it from my list of transforms
-                    transformList.RemoveAt(removal);
+                    //transformList.RemoveAt(removal);
                     //remove it from my instances
                     StaticMeshComponent->RemoveInstance(removal);
 
@@ -506,6 +541,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                 case 4:
                 {
                     UE_LOG(LogTemp, Warning, TEXT("moving down"));
+
+                    UE_LOG(LogTemp, Warning, TEXT("I am moving to coordinates (%d,%d)"), startCoordX, startCoordY-1);
                     //print("moving down");
 
                     visitedArray[startCoordX].myY[startCoordY-1]=true;
@@ -522,7 +559,7 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
                     //find which plane to remove
                     int removal = FindPlane(currentBelow);
                     //remove it from my list of transforms
-                    transformList.RemoveAt(removal);
+                    //transformList.RemoveAt(removal);
                     //remove it from my instances
                     StaticMeshComponent->RemoveInstance(removal);
                     
@@ -545,6 +582,8 @@ void AAssn2Actor::BuildPath(int startCoordX, int startCoordY, FVector currentAbo
         
     }
     //Otherwise, backtrack by returning recursively until maze is back to start.
+
+    UE_LOG(LogTemp, Warning, TEXT("I am returning from the build path starting at coordinates (%d,%d) after exhausting all options"), startCoordX, startCoordY);
     return;
     
 }
@@ -572,6 +611,7 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
         }
     }
 
+    /*
     UE_LOG(LogTemp, Warning, TEXT("I shall now print the initialized state of the visited 2d matrix to check if it is false."));
     //print("I shall now print the initialized state of the visited 2d matrix to check if it is false.");
 
@@ -603,6 +643,7 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     }
     
     UE_LOG(LogTemp, Warning, TEXT("end of visited loop"));
+    */
     //print("end of visited loop");
 
     //For array number/5 = column array number % 5 = row
@@ -671,24 +712,24 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
         {
             if(j== 1 )
             {
-                transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
                 //draw bottom-most wall. loops through i but not j
                 StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-350, 100)));
             }
             
             if(i == 1)
             {
-                transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+                //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
                 //draw rightmost wall. loops through j but not i
                 StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-400,(j*100)-300, 100)));
             }
             
             
-            transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
             //draw top wall iteratively with each loop
             StaticMeshComponent->AddInstance(FTransform(FRotator(90, 90, 0), FVector((i*100)-350,(j*100)-250, 100)));
             
-            transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
+            //transformList.Emplace(FVector((i*100)-350,(j*100)-350, 100));
             //draw left wall iteratively with each loop
             StaticMeshComponent->AddInstance(FTransform(FRotator(90, 0, 0), FVector((i*100)-300,(j*100)-300, 100)));
             
@@ -698,11 +739,10 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     //Always make arbitrary entrances to maze on opposite corners.
     //Recursive backtracking creates inside of maze but entrance and exit
     //would be out of bounds breakthroughs.
-
-    transformList.RemoveAt(1);
+    //transformList.RemoveAt(1);
     StaticMeshComponent->RemoveInstance(1);
 
-    transformList.RemoveAt(58);
+    //transformList.RemoveAt(58);
     StaticMeshComponent->RemoveInstance(58);
     
 
@@ -726,7 +766,39 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     //Call recursive backtracking algorithm for breaking through grid to create maze
     BuildPath(0, 0, Above, Below, Left, Right);
 
-    UE_LOG(LogTemp, Warning, TEXT("End of all recursions of build path"));    
+    UE_LOG(LogTemp, Warning, TEXT("End of all recursions of build path"));
+
+    UE_LOG(LogTemp, Warning, TEXT("I shall now print the final state of the visited 2d matrix to check if it is all true."));
+    //print("I shall now print the initialized state of the visited 2d matrix to check if it is false.");
+
+    for(int q = 0; q<5; q++)
+    {
+        for(int w= 0; w <5; w++)
+        {
+            if(visitedArray[q].myY[w] == false)
+            {
+
+                UE_LOG(LogTemp, Warning, TEXT("Visited at coordinates [%d][%d] is false"), q, w);
+                //FString tempOne = FString::FromInt(q);
+                //FString tempTwo= FString::FromInt(w);
+                //printFString("Index1 [%s]", *tempOne);
+                //printFString("Index2 [%s] is false.", *tempTwo);
+            }
+                // UE_LOG(genLog, Warning, TEXT("Visited at coordinates [%d][%d] visited is false", q, w);
+            else
+            {
+
+                UE_LOG(LogTemp, Warning, TEXT("Visited at coordinates [%d][%d] is true"), q, w);
+                //FString tempOne = FString::FromInt(q);
+                //FString tempTwo= FString::FromInt(w);
+                //printFString("Index1 [%s]", *tempOne);
+                //printFString("Index2 [%s] is true.", *tempTwo);
+            }
+                //UE_LOG(genLog, Warning, TEXT("Visited at coordinates [%d][%d] visited is false", q, w);
+        }
+    }
+    
+    UE_LOG(LogTemp, Warning, TEXT("end of last visited loop\n \n \n "));
     
     //using member variable to set mesh
     StaticMeshComponent->SetStaticMesh(ActorMesh);
@@ -735,7 +807,7 @@ void AAssn2Actor::OnConstruction(const FTransform& transform)
     StaticMeshComponent->SetMaterial(0, ActorMaterial);
     
     //empty transform list at the end since we are resetting instances and the transformlist. 
-    transformList.Empty();
+    //transformList.Empty();
     
 }
 

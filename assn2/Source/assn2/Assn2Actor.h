@@ -50,7 +50,7 @@ public:
 
     //arraylist for holding every instances as it was added in order
     //keeps track of planes so they can be removed 
-    TArray<FVector> transformList;
+    //TArray<FVector> transformList;
     
     //structure to be used to find planes I can remove for maze.
     //commenting it out because it failed to work. using fvector2d to get x and y instead
@@ -86,6 +86,25 @@ private:
     //Creating instanced static mesh component.
     UPROPERTY()
     class UInstancedStaticMeshComponent* StaticMeshComponent;
+
+    /*
+    //Creating 4 spheres for tracking overlap and position in maze
+    UPROPERTY()
+    class UStaticMeshComponent sphereAbove
+
+    //Creating instanced static mesh component.
+    UPROPERTY()
+    class UStaticMeshComponent* sphereBelow;
+
+    //Creating instanced static mesh component.
+    UPROPERTY()
+    class UStaticMeshComponent* sphereLeft;
+
+    //Creating instanced static mesh component.
+    UPROPERTY()
+    class UStaticMeshComponent* sphereRight;
+
+    */
     
     //for forcing rerun of on construction via boolean check mark
     UPROPERTY(EditAnywhere) bool Update;
