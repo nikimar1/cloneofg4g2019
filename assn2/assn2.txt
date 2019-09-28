@@ -1,0 +1,8 @@
+Name: Nikita Markovych ID: SC34973
+
+Everything worked for my assignment. 
+
+Here is the video:
+https://www.youtube.com/watch?v=D5A-9xZ79lQ&feature=youtu.be
+
+I might add an option for resizing the maze though I am an undergrad and didn't need to do that. I'm not sure if I will have enough time to turn in that improved code but I think I will. However, I will not bother reuploading a new video.

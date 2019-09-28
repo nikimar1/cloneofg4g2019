@@ -1,13 +1,5 @@
 
 // Fill out your copyright notice in the Description page of Project Settings.
-#ifdef __clang__
-#pragma clang optimize off
-#else
-#pragma optimize("", off)
-#endif
-
-#pragma once
-
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 //adding this include for instanced static mesh component
@@ -27,9 +19,6 @@ class ASSN2_API AAssn2Actor : public AActor
     
 public:
 
-    //for printing logs
-    //DEFINE_LOG_CATEGORY_EXTERN(genLog, Log, All);
-
     // Sets default values for this actor's properties
     AAssn2Actor();
     
@@ -45,32 +34,7 @@ public:
     //For checking if move is allowed
     bool allowedMove(int move, int startCoordX, int startCoordY);
 
-    //void remove (int removed);
-
-
-    //this will be an array of vectors to remove from maze walls
-    TArray<FVector> toRemove;
-
-    //function for checking if instance should be added or not
-    //bool checkRemove(FVector check);
-
-    //arraylist for holding every instances as it was added in order
-    //keeps track of planes so they can be removed 
-    //TArray<FVector> transformList;
-    
-    //structure to be used to find planes I can remove for maze.
-    //commenting it out because it failed to work. using fvector2d to get x and y instead
-    //struct matrixNode;
-    
-    //Structure for holding 2d array of visited nodes.
-    //apparently 2d arrays don't work in ue4 though they work in c++
-    //workaround is to make array of structs/
-    //I will make that in the cpp file.
-    //bool **visited;
-    
-    
-    //for holding coordinates of 4 surrounding x,y coordinates of planes
-    //FVector Above, Below, Left, Right;
+   
     
     //function for finding plane to remove
     int FindPlane(FVector remove);
@@ -80,6 +44,12 @@ public:
         FVector currentBelow, FVector currentLeft, FVector currentRight);
     
 private:
+
+    //this will be an array of vectors to remove from maze walls
+    TArray<FVector> toRemove;
+
+    //stream for random variable based on seed
+    FRandomStream myStream;
     
     //mesh type
     UPROPERTY(EditAnywhere)
@@ -92,22 +62,12 @@ private:
     //Creating instanced static mesh component.
     UPROPERTY()
     class UInstancedStaticMeshComponent* StaticMeshComponent;
-
     
     //for forcing rerun of on construction via boolean check mark
     UPROPERTY(EditAnywhere) bool Update;
     
     //for random seed generation
     UPROPERTY(EditAnywhere) int RandomSeed;
-
-    //reset list of planes to remove
-    toRemove.Empty();
     
     
 };
-
-#ifdef __clang__
-#pragma clang optimize on
-#else
-#pragma optimize("", on)
-#endif
