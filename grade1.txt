@@ -1,0 +1,30 @@
+CMSC 491 / Graphics for Games
+Assignment 1 Grading Rubric
+
+32/35 - Basics
+    5/ 5 - Forked github repository
+    3/ 5 - Created assn1 project and map
+    5/ 5 - Necessary files checked in (uproject, Config/, Content/)
+    5/ 5 - No starter content in Content/
+    5/ 5 - Transient files not checked in (including Binaries/,
+          DerivedDataCache/, Intermediate/, Saved/, etc.)
+    5/ 5 - Multiple checkins during development
+    5/ 5 - Final commit tagged
+35/35 - Volume Material
+    5/ 5 - Created a Material
+    5/ 5 - Density function in ush
+    5/ 5 - Mask term
+    5/ 5 - Noise-based density
+    5/ 5 - Ray march
+    5/ 5 - Shadow march
+    5/ 5 - Randomization
+30/30 - Results
+    5/ 5 - assn1.txt file checked in with name, ID, and computer config
+    5/ 5 - assn1.txt includes description of what's working and not
+    5/ 5 - Screen shot of cloud
+    5/ 5 - Screen shot of material network
+    10/10- Video file demonstrating project
+----
+97/100 - Total
+
+#the level should be named assn1.umap
