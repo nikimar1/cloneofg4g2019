@@ -11,6 +11,13 @@ class ASSN3_API Aassn3pawn : public APawn
 {
 	GENERATED_BODY()
 
+	/** StaticMesh used for the pawn */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* Pawn;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* NeighborSphere;	
+
 public:
 	// Sets default values for this pawn's properties
 	Aassn3pawn();
