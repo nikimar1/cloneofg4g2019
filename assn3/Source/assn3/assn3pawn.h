@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "UObject/ConstructorHelpers.h"
+
 #include "assn3pawn.generated.h"
+
+
 
 UCLASS()
 class ASSN3_API Aassn3pawn : public APawn
@@ -30,10 +34,16 @@ public:
 	// Sets default values for this pawn's properties
 	Aassn3pawn();
 
-	//using torque force initially. later remember to delete this as I will be using impulse for forces
+	//using torque force for controllable ball movement
 	float RollTorque;
 
-	//This is the list for neighbouring actors
+	//constant scaling factor for cohesion force
+	float cohesionFactor;
+
+	//constant scaling factor for avoidance force
+	float avoidanceFactor;
+
+	//This is the set for neighbouring actors
 	//making this visible so I can tell as neighbours are added or removed
 	UPROPERTY(Transient, VisibleAnywhere)
 	TSet<AActor*> neighbourList;
@@ -62,7 +72,7 @@ protected:
 
 public:	
 	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

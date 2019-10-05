@@ -2,16 +2,23 @@
 
 
 #include "assn3pawn.h"
-#include "UObject/ConstructorHelpers.h"
+
+//includes for camera, springarm boom, collisions, player input, static mesh, etc...
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
+
 //adding this include for sphere component
 #include "Components/SphereComponent.h"
 
+//adding this include for GameplayStatistics.h in order to use GetActorArrayAverageLocation
+#include "Kismet/GameplayStatics.h"
+
+//included for power function
+#include "GenericPlatform/GenericPlatformMath.h"
 
 // Sets default values
 Aassn3pawn::Aassn3pawn()
@@ -54,12 +61,14 @@ Aassn3pawn::Aassn3pawn()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
-	/*
-	Later I will be using add impulse instead of addtorqueinradians. Later I have to change the move functions
-	moveforward and moveright as well as picking different constants for forces. 
-	*/
-	// Set up forces
+	// Set up scaling factors for cohesion, avoidance, and alignment
 	RollTorque = 50000000.0f;
+
+	cohesionFactor = 50000.0f;
+
+	avoidanceFactor = 4500.0f;
+
+
 	//JumpImpulse = 350000.0f;
 	//bCanJump = true; // Start being able to jump
 
@@ -78,12 +87,74 @@ void Aassn3pawn::BeginPlay()
 	
 }
 
-// Called every frame
-//void Aassn3pawn::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
+//Called every frame
+void Aassn3pawn::Tick(float DeltaTime)
+{
 
-//}
+	Super::Tick(DeltaTime);
+
+	//get average location of all actors in the set
+	FVector averageLoc = UGameplayStatics::GetActorArrayAverageLocation(neighbourList.Array());
+
+	//for each actor in the set, apply the correct forces
+	for(AActor* Actor : neighbourList)
+	{
+
+		//get static mesh of current actor in order to apply force to said mesh
+		UStaticMeshComponent* tempMesh = Actor->FindComponentByClass<UStaticMeshComponent>();
+
+		FVector myLoc =  Actor->GetActorLocation();
+
+		//get cohesion vector from actor to average location
+		FVector directionOfCohesion = (averageLoc - myLoc);
+
+		//normalize it to length of one
+		directionOfCohesion.Normalize();
+
+		//multiply it by scaling factor for cohesion force
+		directionOfCohesion *= cohesionFactor;
+
+		//zero the z of the vector just in case
+		directionOfCohesion.Z= 0; 
+
+		//add cohesion force as an impulse to the actor
+		tempMesh->AddImpulse(directionOfCohesion);
+
+		//add forces of repulsion/avoidance to current actor by adding impulse for each of its neighbors. 
+		//This impulse is scaled by distance as well as a constant avoidance factor
+		for(AActor* Actor2 : neighbourList)
+		{
+			//get location of some actor to compare to main actor loc
+			FVector tempLoc = Actor2->GetActorLocation();
+
+			//ignore the vector from an actor to itself
+			if(tempLoc.Equals(myLoc, 0))
+				continue;
+			else
+			{
+				//find direction of vector originating from some actor in the set and pushing towards the main actor
+				FVector directionOfAvoidance = (myLoc - tempLoc);
+
+				//find the distance which will later be used as a factor on the force
+				float distanceFactor = directionOfAvoidance.Size();
+
+				//now I can normalize the vector to a unit vector of 1
+				directionOfAvoidance.Normalize();
+
+				//now I can multiply it by avoidanceFactor and 1/distance cubed
+				directionOfAvoidance *= (avoidanceFactor * (1/(FGenericPlatformMath::Pow(distanceFactor,3))));
+
+				//just in case zero the z of the avoidance force vector
+				directionOfAvoidance.Z = 0;
+
+				//add cohesion force as an impulse to the actor
+				tempMesh->AddImpulse(directionOfAvoidance);
+
+			}
+		}
+	}
+
+}
 
 void Aassn3pawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
