@@ -33,6 +33,11 @@ public:
 	//using torque force initially. later remember to delete this as I will be using impulse for forces
 	float RollTorque;
 
+	//This is the list for neighbouring actors
+	//making this visible so I can tell as neighbours are added or removed
+	UPROPERTY(Transient, VisibleAnywhere)
+	TSet<AActor*> neighbourList;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -47,22 +52,26 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+	//on overlap begin delegate function
+	UFUNCTION()
+	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	//on overlap end delegate function
+	UFUNCTION()
+	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-
+	//virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Returns pawn subobject **/
-	FORCEINLINE class UStaticMeshComponent* GetBall() const { return Pawn; }
+	FORCEINLINE class UStaticMeshComponent* GetPawn() const { return Pawn; }
 	/** Returns SpringArm subobject **/
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 	/** Returns Camera subobject **/
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
-
-	
 	
 };

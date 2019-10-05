@@ -35,6 +35,9 @@ Aassn3pawn::Aassn3pawn()
 	NeighborSphere = CreateDefaultSubobject<USphereComponent>(TEXT("NeighborSphere"));
 	NeighborSphere->SetSphereRadius(750);
 	NeighborSphere->SetupAttachment(RootComponent); 
+	//add overlap end and overlap begin events via AddDynamic 
+	NeighborSphere->OnComponentEndOverlap.AddDynamic(this, &Aassn3pawn::OnOverlapEnd);
+	NeighborSphere->OnComponentBeginOverlap.AddDynamic(this, &Aassn3pawn::OnOverlapBegin);
 
 	// Create a camera boom attached to the root (pawn)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm0"));
@@ -42,7 +45,7 @@ Aassn3pawn::Aassn3pawn()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bAbsoluteRotation = true; // Rotation of the ball should not affect rotation of boom
 	SpringArm->RelativeRotation = FRotator(-45.f, 0.f, 0.f);
-	SpringArm->TargetArmLength = 1200.f;
+	SpringArm->TargetArmLength = 1700.f;
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 3.f;
 
@@ -69,14 +72,28 @@ Aassn3pawn::Aassn3pawn()
 void Aassn3pawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//initialize with overlapping actors
+	NeighborSphere->GetOverlappingActors(neighbourList);
 	
 }
 
 // Called every frame
-void Aassn3pawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+//void Aassn3pawn::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
 
+//}
+
+void Aassn3pawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+{
+	neighbourList.Add(OtherActor);
+}
+
+//on overlap end delegate function
+void Aassn3pawn::OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	neighbourList.Remove(OtherActor);
 }
 
 //remember to rewrite these two to add impulse not add torque 
