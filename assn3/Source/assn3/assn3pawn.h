@@ -45,7 +45,7 @@ public:
 
 	//This is the set for neighbouring actors
 	//making this visible so I can tell as neighbours are added or removed
-	UPROPERTY(Transient, VisibleAnywhere)
+	//UPROPERTY(Transient, VisibleAnywhere)
 	TSet<AActor*> neighbourList;
 
 protected:

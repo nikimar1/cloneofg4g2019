@@ -1,5 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+//#ifdef __clang__
+//#pragma clang optimize off
+//#else
+//#pragma optimize("", off)
+//#endif
 
 #include "assn3pawn.h"
 
@@ -34,7 +39,7 @@ Aassn3pawn::Aassn3pawn()
 	Pawn->SetAngularDamping(0.1f);
 	Pawn->SetLinearDamping(0.1f);
 	Pawn->BodyInstance.MassScale = 3.5f;
-	Pawn->BodyInstance.MaxAngularVelocity = 800.0f;
+	Pawn->BodyInstance.MaxAngularVelocity = 400.0f;
 	Pawn->SetNotifyRigidBodyCollision(true);
 	RootComponent = Pawn;
 
@@ -61,12 +66,12 @@ Aassn3pawn::Aassn3pawn()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
-	// Set up scaling factors for cohesion, avoidance, and alignment
-	RollTorque = 50000000.0f;
+	// Set up scaling factors for cohesion, avoidance, and alignment as well as torque of player controlled pawn
+	RollTorque = 15000000.0f;
 
-	cohesionFactor = 50000.0f;
+	cohesionFactor = 60.0f;
 
-	avoidanceFactor = 4500.0f;
+	avoidanceFactor = 100000000.0f;
 
 
 	//JumpImpulse = 350000.0f;
@@ -96,64 +101,97 @@ void Aassn3pawn::Tick(float DeltaTime)
 	//get average location of all actors in the set
 	FVector averageLoc = UGameplayStatics::GetActorArrayAverageLocation(neighbourList.Array());
 
-	//for each actor in the set, apply the correct forces
-	for(AActor* Actor : neighbourList)
+	//if more than itself as a neighbor, calculate forces
+	if(neighbourList.Num()>1)
 	{
 
-		//get static mesh of current actor in order to apply force to said mesh
-		UStaticMeshComponent* tempMesh = Actor->FindComponentByClass<UStaticMeshComponent>();
+		//UE_LOG(LogTemp, Warning, TEXT( "This is the beginning of a loop adding impulses \n\n\n"));
 
-		FVector myLoc =  Actor->GetActorLocation();
-
-		//get cohesion vector from actor to average location
-		FVector directionOfCohesion = (averageLoc - myLoc);
-
-		//normalize it to length of one
-		directionOfCohesion.Normalize();
-
-		//multiply it by scaling factor for cohesion force
-		directionOfCohesion *= cohesionFactor;
-
-		//zero the z of the vector just in case
-		directionOfCohesion.Z= 0; 
-
-		//add cohesion force as an impulse to the actor
-		tempMesh->AddImpulse(directionOfCohesion);
-
-		//add forces of repulsion/avoidance to current actor by adding impulse for each of its neighbors. 
-		//This impulse is scaled by distance as well as a constant avoidance factor
-		for(AActor* Actor2 : neighbourList)
+	//for each actor in the set, apply the correct forces
+		for(AActor* Actor : neighbourList)
 		{
-			//get location of some actor to compare to main actor loc
-			FVector tempLoc = Actor2->GetActorLocation();
 
-			//ignore the vector from an actor to itself
-			if(tempLoc.Equals(myLoc, 0))
-				continue;
-			else
+			//get static mesh of current actor in order to apply force to said mesh
+			UStaticMeshComponent* tempMesh = Actor->FindComponentByClass<UStaticMeshComponent>();
+
+			//get current location of chosen actor
+			FVector myLoc =  Actor->GetActorLocation();
+
+			//get cohesion vector from actor to average location
+			FVector directionOfCohesion = (averageLoc - myLoc);
+
+			//normalize it to length of one
+			directionOfCohesion.Normalize();
+
+			//multiply it by scaling factor for cohesion force
+			directionOfCohesion *= cohesionFactor;
+
+			//zero the z of the vector just in case
+			directionOfCohesion.Z= 0; 
+
+			//UE_LOG(LogTemp, Warning, TEXT( "directionOfCohesion added with values %s"), *directionOfCohesion.ToString());
+
+			//add cohesion force as an impulse to the actor as long as it is not too low
+			if(!(directionOfCohesion.Equals(FVector(0,0,0),1)))
+				tempMesh->AddImpulse(directionOfCohesion);
+
+			//add forces of repulsion/avoidance to current actor by adding impulse for each of its neighbors. 
+			//This impulse is scaled by distance as well as a constant avoidance factor
+			for(AActor* Actor2 : neighbourList)
 			{
-				//find direction of vector originating from some actor in the set and pushing towards the main actor
-				FVector directionOfAvoidance = (myLoc - tempLoc);
+				//get location of some actor to compare to main actor loc
+				FVector tempLoc = Actor2->GetActorLocation();
 
-				//find the distance which will later be used as a factor on the force
-				float distanceFactor = directionOfAvoidance.Size();
+				//ignore the vector from an actor to itself
+				if(tempLoc.Equals(myLoc, 0))
+					continue;
+				else
+				{
+					//find direction of vector originating from some actor in the set and pushing towards the main actor
+					FVector directionOfAvoidance = (myLoc - tempLoc);
 
-				//now I can normalize the vector to a unit vector of 1
-				directionOfAvoidance.Normalize();
+					//UE_LOG(LogTemp, Warning, TEXT( "directionOfAvoidance initially has values %s"), *directionOfAvoidance.ToString());
 
-				//now I can multiply it by avoidanceFactor and 1/distance cubed
-				directionOfAvoidance *= (avoidanceFactor * (1/(FGenericPlatformMath::Pow(distanceFactor,3))));
+					//find the distance which will later be used as a factor on the force
+					float distanceFactor = directionOfAvoidance.Size();
 
-				//just in case zero the z of the avoidance force vector
-				directionOfAvoidance.Z = 0;
+					//UE_LOG(LogTemp, Warning, TEXT( "distance was %f"), distanceFactor);
 
-				//add cohesion force as an impulse to the actor
-				tempMesh->AddImpulse(directionOfAvoidance);
+					//now I can normalize the vector to a unit vector of 1
+					directionOfAvoidance.Normalize();
 
+					//UE_LOG(LogTemp, Warning, TEXT( "directionOfAvoidance added was normalized to values %s"), *directionOfAvoidance.ToString());
+
+					//float powerResult = FGenericPlatformMath::Pow(distanceFactor,3);
+
+					//UE_LOG(LogTemp, Warning, TEXT( "Result of cubed distance was %f"), powerResult);
+
+					//float powInverse = (1/powerResult);
+
+					//UE_LOG(LogTemp, Warning, TEXT( "Result of 1/cubed distance distance was %f"), powInverse);
+
+					//now I can multiply it by avoidanceFactor and 1/distance cubed
+					directionOfAvoidance =(directionOfAvoidance * avoidanceFactor * (1/FGenericPlatformMath::Pow(distanceFactor,3)));
+
+					//UE_LOG(LogTemp, Warning, TEXT( "pre z=0 directionOfAvoidance added with values %s"), *directionOfAvoidance.ToString());
+
+					//just in case zero the z of the avoidance force vector
+					directionOfAvoidance.Z = 0;
+
+
+					//UE_LOG(LogTemp, Warning, TEXT( "Final directionOfAvoidance added with values %s"), *directionOfAvoidance.ToString());
+					
+					//add avoidance force as an impulse to the actor as long as it is not too low
+					if(!(directionOfCohesion.Equals(FVector(0,0,0),.5)))
+						tempMesh->AddImpulse(directionOfAvoidance);
+
+
+
+				}
 			}
 		}
 	}
-
+	//UE_LOG(LogTemp, Warning, TEXT( "This has been one full loop of adding impulses \n\n\n"));
 }
 
 void Aassn3pawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
@@ -204,3 +242,8 @@ void Aassn3pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 */
 
+//#ifdef __clang__
+//#pragma clang optimize on
+//#else
+//#pragma optimize("", on)
+//#endif
