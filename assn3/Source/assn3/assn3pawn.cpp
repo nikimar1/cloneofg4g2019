@@ -39,7 +39,8 @@ Aassn3pawn::Aassn3pawn()
 	Pawn->SetAngularDamping(0.1f);
 	Pawn->SetLinearDamping(0.1f);
 	Pawn->BodyInstance.MassScale = 3.5f;
-	Pawn->BodyInstance.MaxAngularVelocity = 400.0f;
+	//was 400
+	Pawn->BodyInstance.MaxAngularVelocity = 800.0f;
 	Pawn->SetNotifyRigidBodyCollision(true);
 	RootComponent = Pawn;
 
@@ -67,11 +68,17 @@ Aassn3pawn::Aassn3pawn()
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
 	// Set up scaling factors for cohesion, avoidance, and alignment as well as torque of player controlled pawn
-	RollTorque = 15000000.0f;
+	//was 200 then 210 then 220 then 230 then 250 now 230
+	RollTorque = 23000000.0f;
 
-	cohesionFactor = 60.0f;
+	//was 60 then 40 then 30 now 10
+	cohesionFactor = 10.0f;
 
-	avoidanceFactor = 100000000.0f;
+	//was 2 x what it is now then was 5 then 3 now 2 now 5
+	avoidanceFactor = 50000000.0f;
+
+	//was 100 then 50 then 60 then 100 now 90
+	alignmentFactor= 90.0f;
 
 
 	//JumpImpulse = 350000.0f;
@@ -111,6 +118,12 @@ void Aassn3pawn::Tick(float DeltaTime)
 		for(AActor* Actor : neighbourList)
 		{
 
+			//vector for storing average of other vectors
+			FVector avgVec(0,0,0);
+
+			//count for storing number of other vectors
+			int32 count = 0;
+
 			//get static mesh of current actor in order to apply force to said mesh
 			UStaticMeshComponent* tempMesh = Actor->FindComponentByClass<UStaticMeshComponent>();
 
@@ -132,8 +145,9 @@ void Aassn3pawn::Tick(float DeltaTime)
 			//UE_LOG(LogTemp, Warning, TEXT( "directionOfCohesion added with values %s"), *directionOfCohesion.ToString());
 
 			//add cohesion force as an impulse to the actor as long as it is not too low
-			if(!(directionOfCohesion.Equals(FVector(0,0,0),1)))
-				tempMesh->AddImpulse(directionOfCohesion);
+			//if(!(directionOfCohesion.Equals(FVector(0,0,0),1)))
+            if (IsValid(tempMesh))
+                tempMesh->AddImpulse(directionOfCohesion);
 
 			//add forces of repulsion/avoidance to current actor by adding impulse for each of its neighbors. 
 			//This impulse is scaled by distance as well as a constant avoidance factor
@@ -147,6 +161,13 @@ void Aassn3pawn::Tick(float DeltaTime)
 					continue;
 				else
 				{
+
+					//get this actor's velocity to add to average
+					avgVec+=Actor2->GetVelocity();
+
+					//increment count;
+					count++;
+
 					//find direction of vector originating from some actor in the set and pushing towards the main actor
 					FVector directionOfAvoidance = (myLoc - tempLoc);
 
@@ -182,13 +203,29 @@ void Aassn3pawn::Tick(float DeltaTime)
 					//UE_LOG(LogTemp, Warning, TEXT( "Final directionOfAvoidance added with values %s"), *directionOfAvoidance.ToString());
 					
 					//add avoidance force as an impulse to the actor as long as it is not too low
-					if(!(directionOfCohesion.Equals(FVector(0,0,0),.5)))
-						tempMesh->AddImpulse(directionOfAvoidance);
+					//if(!(directionOfCohesion.Equals(FVector(0,0,0),.5)))
+                    if (IsValid(tempMesh))
+                        tempMesh->AddImpulse(directionOfAvoidance);
 
 
 
 				}
 			}
+
+			//get difference of average velocity and this actor's velocity
+			if(count>0)
+				avgVec/=count; 
+			FVector alignmentForce = (avgVec-(Actor->GetVelocity()));
+
+			//multipl by scaled factor
+			alignmentForce*=alignmentFactor;
+
+			//remove z component
+			alignmentForce.Z=0;
+
+			//add impulse force for allignment to mesh
+            if (IsValid(tempMesh))
+                tempMesh->AddImpulse(alignmentForce);
 		}
 	}
 	//UE_LOG(LogTemp, Warning, TEXT( "This has been one full loop of adding impulses \n\n\n"));

@@ -43,6 +43,9 @@ public:
 	//constant scaling factor for avoidance force
 	float avoidanceFactor;
 
+	//constant scaling factor for alignment force
+	float alignmentFactor;
+
 	//This is the set for neighbouring actors
 	//making this visible so I can tell as neighbours are added or removed
 	//UPROPERTY(Transient, VisibleAnywhere)
