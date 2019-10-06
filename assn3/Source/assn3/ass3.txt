@@ -1,0 +1,7 @@
+Nikita Markovych SC34973
+
+Everything works. Force values could be tweaked to get smoother movement or more reactive movement but within the
+confines of the project requirements everything worked and movement was sufficiently smooth. Cohesion and avoidance were
+mostly maintained although the player controlled actor was able to accelerate sufficiently to break free. 
+
+My video is at: https://www.youtube.com/watch?v=aP7w2r0FlBM
