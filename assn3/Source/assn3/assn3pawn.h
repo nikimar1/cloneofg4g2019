@@ -27,7 +27,7 @@ class ASSN3_API Aassn3pawn : public APawn
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* Pawn;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//sphere component for testing overlap and finding neighbors 
 	class USphereComponent* NeighborSphere;	
 
 public:
@@ -47,8 +47,6 @@ public:
 	float alignmentFactor;
 
 	//This is the set for neighbouring actors
-	//making this visible so I can tell as neighbours are added or removed
-	//UPROPERTY(Transient, VisibleAnywhere)
 	TSet<AActor*> neighbourList;
 
 protected:
@@ -76,9 +74,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Returns pawn subobject **/
 	FORCEINLINE class UStaticMeshComponent* GetPawn() const { return Pawn; }

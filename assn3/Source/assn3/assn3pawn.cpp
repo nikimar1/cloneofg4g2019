@@ -1,11 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-//#ifdef __clang__
-//#pragma clang optimize off
-//#else
-//#pragma optimize("", off)
-//#endif
-
 #include "assn3pawn.h"
 
 //includes for camera, springarm boom, collisions, player input, static mesh, etc...
@@ -39,14 +33,15 @@ Aassn3pawn::Aassn3pawn()
 	Pawn->SetAngularDamping(0.1f);
 	Pawn->SetLinearDamping(0.1f);
 	Pawn->BodyInstance.MassScale = 3.5f;
-	//was 400
+	//was 400 then 800 now 600. back to 800
 	Pawn->BodyInstance.MaxAngularVelocity = 800.0f;
 	Pawn->SetNotifyRigidBodyCollision(true);
 	RootComponent = Pawn;
 
 	//create sphere for detecting neighbors
 	NeighborSphere = CreateDefaultSubobject<USphereComponent>(TEXT("NeighborSphere"));
-	NeighborSphere->SetSphereRadius(750);
+	//was 750 then 400 now trying 750 again. if bad will try something >400 <750. back to 400
+	NeighborSphere->SetSphereRadius(400);
 	NeighborSphere->SetupAttachment(RootComponent); 
 	//add overlap end and overlap begin events via AddDynamic 
 	NeighborSphere->OnComponentEndOverlap.AddDynamic(this, &Aassn3pawn::OnOverlapEnd);
@@ -68,24 +63,13 @@ Aassn3pawn::Aassn3pawn()
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
 	// Set up scaling factors for cohesion, avoidance, and alignment as well as torque of player controlled pawn
-	//was 200 then 210 then 220 then 230 then 250 now 230
-	RollTorque = 23000000.0f;
+	RollTorque = 50000000.0f;
 
-	//was 60 then 40 then 30 now 10
-	cohesionFactor = 10.0f;
+	cohesionFactor = 120.0f;
 
-	//was 2 x what it is now then was 5 then 3 now 2 now 5
-	avoidanceFactor = 50000000.0f;
+	avoidanceFactor = 500000000.0f;
 
-	//was 100 then 50 then 60 then 100 now 90
-	alignmentFactor= 90.0f;
-
-
-	//JumpImpulse = 350000.0f;
-	//bCanJump = true; // Start being able to jump
-
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	alignmentFactor= 15.0f;
 
 }
 
@@ -112,16 +96,17 @@ void Aassn3pawn::Tick(float DeltaTime)
 	if(neighbourList.Num()>1)
 	{
 
-		//UE_LOG(LogTemp, Warning, TEXT( "This is the beginning of a loop adding impulses \n\n\n"));
-
 	//for each actor in the set, apply the correct forces
 		for(AActor* Actor : neighbourList)
 		{
+			//Vector for storing all avoidance vectors. I am adding them cumulatively
+			//to the static mesh as a single impulse
+			FVector repulsionVec(0,0,0);
 
-			//vector for storing average of other vectors
+			//Vector for storing average velocity of all other actors
 			FVector avgVec(0,0,0);
 
-			//count for storing number of other vectors
+			//count for storing number of other velocity vectors
 			int32 count = 0;
 
 			//get static mesh of current actor in order to apply force to said mesh
@@ -142,13 +127,6 @@ void Aassn3pawn::Tick(float DeltaTime)
 			//zero the z of the vector just in case
 			directionOfCohesion.Z= 0; 
 
-			//UE_LOG(LogTemp, Warning, TEXT( "directionOfCohesion added with values %s"), *directionOfCohesion.ToString());
-
-			//add cohesion force as an impulse to the actor as long as it is not too low
-			//if(!(directionOfCohesion.Equals(FVector(0,0,0),1)))
-            if (IsValid(tempMesh))
-                tempMesh->AddImpulse(directionOfCohesion);
-
 			//add forces of repulsion/avoidance to current actor by adding impulse for each of its neighbors. 
 			//This impulse is scaled by distance as well as a constant avoidance factor
 			for(AActor* Actor2 : neighbourList)
@@ -157,13 +135,13 @@ void Aassn3pawn::Tick(float DeltaTime)
 				FVector tempLoc = Actor2->GetActorLocation();
 
 				//ignore the vector from an actor to itself
-				if(tempLoc.Equals(myLoc, 0))
+				if(tempLoc.Equals(myLoc))
 					continue;
 				else
 				{
 
 					//get this actor's velocity to add to average
-					avgVec+=Actor2->GetVelocity();
+					avgVec+=(Actor2->GetVelocity());
 
 					//increment count;
 					count++;
@@ -171,66 +149,60 @@ void Aassn3pawn::Tick(float DeltaTime)
 					//find direction of vector originating from some actor in the set and pushing towards the main actor
 					FVector directionOfAvoidance = (myLoc - tempLoc);
 
-					//UE_LOG(LogTemp, Warning, TEXT( "directionOfAvoidance initially has values %s"), *directionOfAvoidance.ToString());
-
 					//find the distance which will later be used as a factor on the force
 					float distanceFactor = directionOfAvoidance.Size();
-
-					//UE_LOG(LogTemp, Warning, TEXT( "distance was %f"), distanceFactor);
 
 					//now I can normalize the vector to a unit vector of 1
 					directionOfAvoidance.Normalize();
 
-					//UE_LOG(LogTemp, Warning, TEXT( "directionOfAvoidance added was normalized to values %s"), *directionOfAvoidance.ToString());
-
-					//float powerResult = FGenericPlatformMath::Pow(distanceFactor,3);
-
-					//UE_LOG(LogTemp, Warning, TEXT( "Result of cubed distance was %f"), powerResult);
-
-					//float powInverse = (1/powerResult);
-
-					//UE_LOG(LogTemp, Warning, TEXT( "Result of 1/cubed distance distance was %f"), powInverse);
-
 					//now I can multiply it by avoidanceFactor and 1/distance cubed
 					directionOfAvoidance =(directionOfAvoidance * avoidanceFactor * (1/FGenericPlatformMath::Pow(distanceFactor,3)));
 
-					//UE_LOG(LogTemp, Warning, TEXT( "pre z=0 directionOfAvoidance added with values %s"), *directionOfAvoidance.ToString());
-
 					//just in case zero the z of the avoidance force vector
 					directionOfAvoidance.Z = 0;
-
-
-					//UE_LOG(LogTemp, Warning, TEXT( "Final directionOfAvoidance added with values %s"), *directionOfAvoidance.ToString());
 					
-					//add avoidance force as an impulse to the actor as long as it is not too low
-					//if(!(directionOfCohesion.Equals(FVector(0,0,0),.5)))
-                    if (IsValid(tempMesh))
-                        tempMesh->AddImpulse(directionOfAvoidance);
-
-
+					//adding to net avoidance vector
+					repulsionVec+= directionOfAvoidance;
 
 				}
 			}
+
+			//add cohesion force as an impulse to the actor as long as mesh component is valid
+            if (IsValid(tempMesh))
+            {
+                tempMesh->AddImpulse(directionOfCohesion);
+                //UE_LOG(LogTemp, Warning, TEXT( "directionOfCohesion added with values %s"), *directionOfCohesion.ToString());
+            }
+
+            //add avoidance force as an impulse to the actor as long as mesh is valid
+            if (IsValid(tempMesh))
+            {
+            	tempMesh->AddImpulse(repulsionVec);
+            	//UE_LOG(LogTemp, Warning, TEXT( "avoidance vector added with values %s"), *repulsionVec.ToString());
+            }
 
 			//get difference of average velocity and this actor's velocity
 			if(count>0)
 				avgVec/=count; 
 			FVector alignmentForce = (avgVec-(Actor->GetVelocity()));
 
-			//multipl by scaled factor
+			//multiply by scaled factor
 			alignmentForce*=alignmentFactor;
 
 			//remove z component
 			alignmentForce.Z=0;
 
-			//add impulse force for allignment to mesh
+			//add impulse force for allignment to mesh if valid
             if (IsValid(tempMesh))
+            {
                 tempMesh->AddImpulse(alignmentForce);
+            }
 		}
 	}
-	//UE_LOG(LogTemp, Warning, TEXT( "This has been one full loop of adding impulses \n\n\n"));
 }
 
+
+//on overlap begin delegate function
 void Aassn3pawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor * OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
 	neighbourList.Add(OtherActor);
@@ -242,7 +214,7 @@ void Aassn3pawn::OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AA
 	neighbourList.Remove(OtherActor);
 }
 
-//remember to rewrite these two to add impulse not add torque 
+//adds torque to player controlled pawn
 void Aassn3pawn::MoveRight(float Val)
 {
 	const FVector Torque = FVector(-1.f * Val * RollTorque, 0.f, 0.f);
@@ -254,33 +226,13 @@ void Aassn3pawn::MoveForward(float Val)
 	const FVector Torque = FVector(0.f, Val * RollTorque, 0.f);
 	Pawn->AddTorqueInRadians(Torque);	
 }
-//remember to rewrite two above functions
 
-// Called to bind functionality to input
-//I am using this to allow for player input
+//Called to bind functionality to input
+//I am using this to allow for player input rotational forces via arrow keys but not jumps or touch controls
 void Aassn3pawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
 	PlayerInputComponent->BindAxis("MoveRight", this, &Aassn3pawn::MoveRight);
 	PlayerInputComponent->BindAxis("MoveForward", this, &Aassn3pawn::MoveForward);
 
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &Aassn3Ball::Jump);
-
-	// handle touch devices
-	//PlayerInputComponent->BindTouch(IE_Pressed, this, &Aassn3Ball::TouchStarted);
-	//PlayerInputComponent->BindTouch(IE_Released, this, &Aassn3Ball::TouchStopped);
 }
-
-/*
-void Aassn3pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-*/
-
-//#ifdef __clang__
-//#pragma clang optimize on
-//#else
-//#pragma optimize("", on)
-//#endif
