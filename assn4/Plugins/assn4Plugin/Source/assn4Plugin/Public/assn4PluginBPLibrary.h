@@ -59,4 +59,7 @@ class Uassn4PluginBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Blue Noise Point in Range", Keywords = "Blue Noise Point in Range"), Category = "assn4Plugin")
 	static FVector BlueNoisePointInRange(float Min, float Max, const FRandomStream& Stream);
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "assn4Plugin sample test testing"), Category = "assn4PluginTesting")
+	static float assn4PluginSampleFunction(float Param);
+
 };

@@ -21,7 +21,7 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 	TSet<FVector> tempLocations;
 
 	//Vector for initial location of the instanced static mesh used as starting point for mitchell algorithm. 
-	FVector initialLocation = FVector(0,0,1);
+	FVector initialLocation = FVector(0,0,0);
 
 	//add this initial point to the set. later transformations away from this point will be used as candidates
 	myBlueNoise.twoDLocations.Add(initialLocation); 
@@ -32,32 +32,32 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 
 		//check for duplicate candidates being added by rng. 
 		//This makes sure we add new points and look at 5n candidates with every new point
-		bool duplicate = true;
+		//bool duplicate = true;
 
 		//get size of the set before attempting to add
-		int32 pastSize = tempLocations.Num();
+		//int32 pastSize = tempLocations.Num();
 
 		//keep trying to add candidate until size of set increases
-		while(duplicate)
-		{
+		//while(duplicate)
+		//{
 			//get random values for x and y position. later add code to make this blue noise
 			float xValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 			float yValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 
 			//construct position vector
-			FVector candidatePositionVec(xValue,yValue,1);
+			FVector candidatePositionVec(xValue,yValue,0);
 
 			//if this new rng vector was not already in the visited vectors list
-			if(!myBlueNoise.twoDLocations.Contains(candidatePositionVec))
-			{
+			//if(!myBlueNoise.twoDLocations.Contains(candidatePositionVec))
+			//{
 				//add position vector to set of candidates
 				tempLocations.Add(candidatePositionVec);
-			}
+			//}
 
 			//if adding position vector grew the size of the candidate set, it was not a duplicate and loop exits
-			if(!(tempLocations.Num()>pastSize))
-				duplicate = false;
-		}
+			//if(tempLocations.Num()>pastSize)
+			//	duplicate = false;
+		//}
 
 	}
 
@@ -92,7 +92,7 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 			yBest = candidatePosition.Y;
 			zBest = candidatePosition.Z;
 		}
-		count ++;
+		count++;
 	}
 
 	//empty the temporary set 
@@ -115,5 +115,10 @@ void Uassn4PluginBPLibrary::SetBlueNoiseStreamSeed(UPARAM(ref) FRandomStream& St
 	//initialize seed and add it to my struct
 	Stream.Initialize(NewSeed);
 	myBlueNoise.blueNoiseStream=Stream;
+}
+
+float Uassn4PluginBPLibrary::assn4PluginSampleFunction(float Param)
+{
+	return -1;
 }
 
