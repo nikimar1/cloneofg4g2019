@@ -40,7 +40,7 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 		//keep trying to add candidate until size of set increases
 		while(duplicate)
 		{
-			//get random values for x and y position. later add code to make this blue noise
+			//get random values for x and y position candidates. later make blue noise
 			float xValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 			float yValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 

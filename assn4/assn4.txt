@@ -1,0 +1,5 @@
+Nikita Markovych SC34973
+
+Assn4 was successful with everything working as intended. I did not implement the extra credit. I did want to note that when looking at 5N candidates I make sure they are not already in the visited set and that no candidate is repeated among the 5N either. This is accomplished using a while loop.
+
+Note: my implementation always has one normal untransformed cube at the center. My implementation assumes the blue noise starts at 0,0 for purposes of the first point distance algorithm. Screenshots are thus of counts 10 15 and 20 but have 11 16 and 21 objects. 
