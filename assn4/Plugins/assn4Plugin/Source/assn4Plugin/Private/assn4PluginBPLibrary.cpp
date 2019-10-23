@@ -13,22 +13,100 @@ Uassn4PluginBPLibrary::Uassn4PluginBPLibrary(const FObjectInitializer& ObjectIni
 	myBlueNoise = FmyBlueNoiseStruct();
 }
 
-//first just implementing function to work exactly like random noise. Later will act as below comment
-//Code to return point as FVector
+//Code to return point as FVector via blue noise randomization through Mitchell's Best-candidate algorithm 
 FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const FRandomStream& BlueNoiseStream)
 {
-	//get random values for x and y position. later add code to make this blue noise
-	float xValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
-	float yValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 
-	//construct position vector
-	FVector positionVec(xValue,yValue,1);
+	//set of temporary 2d locations as candidates
+	TSet<FVector> tempLocations;
 
-	//add it to my struct
+	//Vector for initial location of the instanced static mesh used as starting point for mitchell algorithm. 
+	FVector initialLocation = FVector(0,0,1);
+
+	//add this initial point to the set. later transformations away from this point will be used as candidates
+	myBlueNoise.twoDLocations.Add(initialLocation); 
+
+	//for loop iterates 5N times to get set of 5N candidates
+	for(int i=0; i<(5*myBlueNoise.twoDLocations.Num()); i++)
+	{
+
+		//check for duplicate candidates being added by rng. 
+		//This makes sure we add new points and look at 5n candidates with every new point
+		bool duplicate = true;
+
+		//get size of the set before attempting to add
+		int32 pastSize = tempLocations.Num();
+
+		//keep trying to add candidate until size of set increases
+		while(duplicate)
+		{
+			//get random values for x and y position. later add code to make this blue noise
+			float xValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
+			float yValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
+
+			//construct position vector
+			FVector candidatePositionVec(xValue,yValue,1);
+
+			//if this new rng vector was not already in the visited vectors list
+			if(!myBlueNoise.twoDLocations.Contains(candidatePositionVec))
+			{
+				//add position vector to set of candidates
+				tempLocations.Add(candidatePositionVec);
+			}
+
+			//if adding position vector grew the size of the candidate set, it was not a duplicate and loop exits
+			if(!(tempLocations.Num()>pastSize))
+				duplicate = false;
+		}
+
+	}
+
+	//Variable for storing largest total distance so far
+	//Make this some negative distance so first distance will always be higher
+	float bestDistance = -1;
+
+	//for storing position of best candidate
+	float xBest = -1;
+	float yBest = -1;
+	float zBest = -1;
+
+	//for tracking current index of the candidate we are comparing to
+	int32 count = 0; 
+
+	for(FVector candidatePosition: tempLocations)
+	{
+		//store total distance from all points for every candidate
+		float currentDistance=0;
+
+		//iterate over all past locations to calculate distance
+		for(FVector pastVector: myBlueNoise.twoDLocations)
+		{
+			//add all distances between current candidate and all past points
+			currentDistance += FVector::Dist(candidatePosition, pastVector);
+		}
+
+		if(currentDistance > bestDistance)
+		{
+			bestDistance = currentDistance;
+			xBest = candidatePosition.X;
+			yBest = candidatePosition.Y;
+			zBest = candidatePosition.Z;
+		}
+		count ++;
+	}
+
+	//empty the temporary set 
+	tempLocations.Empty();
+
+	//create best vector from extracted elements of the best candidate
+	FVector positionVec(xBest,yBest,zBest);
+
+	//add best vector to my struct
 	myBlueNoise.twoDLocations.Add(positionVec);
 
 	//return said position vector
 	return positionVec;
+	
 }
 
 //code to initialize type from random seed
