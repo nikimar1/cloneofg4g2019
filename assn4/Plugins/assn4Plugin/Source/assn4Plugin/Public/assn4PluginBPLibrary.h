@@ -3,7 +3,29 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+
+/*my includes*/
+#include "Math/RandomStream.h"
+#include "Math/Vector.h"
+#include "Containers/Set.h"
+/**/
+
 #include "assn4PluginBPLibrary.generated.h"
+
+//my structure for blue noise
+USTRUCT(BlueprintType)
+struct myBlueNoiseStruct
+{
+	GENERATED_BODY()
+
+	//set of generated 2d locations
+	TSet<FVector> twoDLocations;
+	
+	//FRandomStream object
+	FRandomStream blueNoiseStream;
+
+};
+
 
 /* 
 *	Function library class.
@@ -27,6 +49,12 @@ class Uassn4PluginBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "assn4Plugin sample test testing"), Category = "assn4PluginTesting")
-	static float assn4PluginSampleFunction(float Param);
+	/** code to initialize my structure from a seed*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Blue Noise Stream Seed", Keywords = "Set Blue Noise Stream Seed"), Category = "assn4Plugin")
+	static void SetBlueNoiseStreamSeed(UPARAM(ref) FRandomStream& Stream, int32 NewSeed);
+
+	/** code to create blue noise in some range using stream*/
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Blue Noise Point in Range", Keywords = "Blue Noise Point in Range"), Category = "assn4Plugin")
+	static FVector BlueNoisePointInRange(float Min, float Max, const FRandomStream& Stream);
+
 };
