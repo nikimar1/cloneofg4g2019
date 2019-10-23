@@ -32,14 +32,14 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 
 		//check for duplicate candidates being added by rng. 
 		//This makes sure we add new points and look at 5n candidates with every new point
-		//bool duplicate = true;
+		bool duplicate = true;
 
 		//get size of the set before attempting to add
-		//int32 pastSize = tempLocations.Num();
+		int32 pastSize = tempLocations.Num();
 
 		//keep trying to add candidate until size of set increases
-		//while(duplicate)
-		//{
+		while(duplicate)
+		{
 			//get random values for x and y position. later add code to make this blue noise
 			float xValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
 			float yValue= (Min + (Max - Min) * (BlueNoiseStream.FRand()));
@@ -48,16 +48,16 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 			FVector candidatePositionVec(xValue,yValue,0);
 
 			//if this new rng vector was not already in the visited vectors list
-			//if(!myBlueNoise.twoDLocations.Contains(candidatePositionVec))
-			//{
+			if(!myBlueNoise.twoDLocations.Contains(candidatePositionVec))
+			{
 				//add position vector to set of candidates
 				tempLocations.Add(candidatePositionVec);
-			//}
+			}
 
 			//if adding position vector grew the size of the candidate set, it was not a duplicate and loop exits
-			//if(tempLocations.Num()>pastSize)
-			//	duplicate = false;
-		//}
+			if(tempLocations.Num()>pastSize)
+				duplicate = false;
+		}
 
 	}
 
@@ -75,15 +75,20 @@ FVector Uassn4PluginBPLibrary::BlueNoisePointInRange(float Min, float Max, const
 
 	for(FVector candidatePosition: tempLocations)
 	{
-		//store total distance from all points for every candidate
-		float currentDistance=0;
+		//store array of distances from all points for every candidate
+		TArray<float> distanceSet;
 
-		//iterate over all past locations to calculate distance
+		float currentDistance = 0;
+
+		//iterate over all past locations to get distances
 		for(FVector pastVector: myBlueNoise.twoDLocations)
 		{
-			//add all distances between current candidate and all past points
-			currentDistance += FVector::Dist(candidatePosition, pastVector);
+			//add all distances between current candidate and past points to the set
+			distanceSet.Add(FVector::Dist(candidatePosition, pastVector));
 		}
+
+		//get distance between current candidate and its closest neighbor from the set of existing points
+		currentDistance = FMath::Min(distanceSet);
 
 		if(currentDistance > bestDistance)
 		{
