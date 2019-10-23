@@ -3,8 +3,8 @@
 #include "assn4PluginBPLibrary.h"
 #include "assn4Plugin.h"
 
-//global structure used for my plugin
-static FmyBlueNoiseStruct myBlueNoise;
+//structure used for my plugin
+FmyBlueNoiseStruct myBlueNoise;
 
 Uassn4PluginBPLibrary::Uassn4PluginBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
