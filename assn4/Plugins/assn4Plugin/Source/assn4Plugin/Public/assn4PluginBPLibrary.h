@@ -14,7 +14,7 @@
 
 //my structure for blue noise
 USTRUCT(BlueprintType)
-struct myBlueNoiseStruct
+struct FmyBlueNoiseStruct
 {
 	GENERATED_BODY()
 
@@ -24,8 +24,10 @@ struct myBlueNoiseStruct
 	//FRandomStream object
 	FRandomStream blueNoiseStream;
 
-};
+	//default constructor 
+	FmyBlueNoiseStruct(){}
 
+};
 
 /* 
 *	Function library class.

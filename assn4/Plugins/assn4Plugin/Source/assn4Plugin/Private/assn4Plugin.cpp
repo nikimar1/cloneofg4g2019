@@ -17,36 +17,6 @@ void Fassn4PluginModule::ShutdownModule()
 	
 }
 
-//my structure
-USTRUCT(BlueprintType)
-struct ENGINE_API FFloatSpringState
-{
-	GENERATED_BODY()
-
-	float PrevError;
-	float Velocity;
-
-	FFloatSpringState()
-	: PrevError(0.f)
-	, Velocity(0.f)
-	{
-
-	}
-
-	void Reset()
-	{
-		PrevError = Velocity = 0.f;
-	}
-};
-
-
-//first just implementing this function to work exactly like random noise
-float UKismetMathLibrary::BlueNoisePointInRange(float Min, float Max, const FRandomStream& BlueNoiseStream)
-{
-	return Min + (Max - Min) * (BlueNoiseStream.FRand());
-}
-
-
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(Fassn4PluginModule, assn4Plugin)
