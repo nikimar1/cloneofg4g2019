@@ -1,0 +1,38 @@
+CMSC 491 / Graphics for Games
+Assignment 3 Grading Rubric
+
+35/35 - Basics
+   5 /5 - Created assn3 project using Rolling C++ template
+   5 /5 - Necessary files checked in (uproject, Config/, Content/)
+   5 /5 - Transient files not checked in (including Binaries/,
+         DerivedDataCache/, Intermediate/, Saved/, etc.)
+   5 /5 - Multiple checkins during development
+   5 /5 - Did not use github web upload
+   5 /5 - Relevant comments in assn3.txt
+   5 /5 - Include link to video file demonstrating project
+40/40 - C++ Pawn
+   5 /5 - Created a new C++ Pawn
+   5 /5 - Mesh and physics initialization
+    5/5 - Created neighbor detection sphere
+    5/5 - Added TSet<Actor*> to class, either not UPROPERTY or with Transient
+    5/5 - Initialize TSet in BeginPlay
+    5/5 - Created and registered OnComponentBeginOverlap function
+    5/5 - Created and registered OnComponentEndOverlap
+    5/5 - Update TSet in BeginOverlap/EndOverlap
+21/25 - Behavior
+  5  /5 - Tick enabled (bCanEverTick set to true, Super::BeginPlay() called, Tick exists)
+  4  /5 - Tick computes average position and cohesion force
+  3  /5 - Tick computes average velocity and alignment force
+  4  /5 - Tick computes correctly scaled avoidance force
+  5  /5 - Forces are balanced for reasonable behavior
+0/20 - Extra credit
+   0 /5 - Capsule creation & overlap functions
+   0 /5 - Capsule position stays with ball at one end
+  0  /5 - Capsule direction & size align with velocity
+  0  /5 - Avoidance forces for boids in capsule
+----
+96/100 - Total (120 with extra credit)
+
+#velocity and alignment forces
+#Cohesion and position of all balls
+#AVoidance needs to be scaled properly
