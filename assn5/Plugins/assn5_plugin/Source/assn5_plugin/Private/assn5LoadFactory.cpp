@@ -74,6 +74,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 	int32 dimSizeX = -1;
 	int32 dimSizeY = -1;
 	int32 dimSizeZ = -1;
+	int32 myNumChannels = -1;
 
 	//reading over and logging array to confirm if this step worked
 	//also, taking actions based on contents of each file line
@@ -104,7 +105,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 		else if (count == (arraySize -1))
 		{
 			//for debugging purposes but commenting out for final program.
-			UE_LOG(LogTemp, Warning, TEXT("The final line is %s"), *myString);
+			//UE_LOG(LogTemp, Warning, TEXT("The final line is %s"), *myString);
 		}
 		else
 		{
@@ -162,20 +163,29 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 					{
 						case 0:
 							if (tempInt <= 0)
+							{
 								UE_LOG(LogTemp, Warning, TEXT("Negative or 0 dimension for X"))
+								return nullptr;
+							}
 							else
 								dimSizeX = tempInt;
 							break;
 						case 1:
 							if (tempInt <= 0)
+							{
 								UE_LOG(LogTemp, Warning, TEXT("Negative or 0 dimension for Y"))
+								return nullptr;
+							}
 							else
 								dimSizeY = tempInt;
 							break;
 
 						case 2:
 							if (tempInt <= 0)
+							{
 								UE_LOG(LogTemp, Warning, TEXT("Negative or 0 dimension for Z/Slices"))
+								return nullptr;
+							}
 							else
 								dimSizeZ = tempInt;
 							break;
@@ -190,9 +200,27 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 				//for debugging purposes to see dimensions. comment out later for final program
 				//UE_LOG(LogTemp, Warning, TEXT("My dimensions are %d, %d, %d"), dimSizeX, dimSizeY, dimSizeZ);
 			}
-			else if ()
+			//look at number of channels. since I am not doing extra credit, one channel is all that is allowed
+			else if (myString.Contains(TEXT("ElementNumberOfChannels")))
 			{
+				FString nChannels = myString.RightChop(25);
 
+				int32 tempInt = FCString::Atoi(*nChannels);
+
+				if (tempInt== 1)
+				{
+					myNumChannels = tempInt;
+				}
+				else
+					UE_LOG(LogTemp, Warning, TEXT("Incorrect value for ElementNumberOfChannels"));
+				
+				//for debugging purposes and commented out later
+				UE_LOG(LogTemp, Warning, TEXT("My num channels is %d"), myNumChannels);
+			}
+
+			else
+			{
+				//do nothing since other headers are not supported
 			}
 
 		}
