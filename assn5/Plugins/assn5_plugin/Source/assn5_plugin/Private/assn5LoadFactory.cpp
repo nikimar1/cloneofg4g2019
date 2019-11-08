@@ -8,28 +8,13 @@
 
 #include "assn5LoadFactory.h"
 
-#include "Engine/StaticMesh.h"
-#include "Misc/FeedbackContext.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
-#include "AssetRegistryModule.h"
 #include "Editor/UnrealEd/Public/Editor.h"
-#include "Engine/StaticMesh.h"
-//#include "IMessageLogListing.h"
-//#include "Interfaces/IMainFrameModule.h"
-#include "Logging/LogMacros.h"
-#include "Logging/TokenizedMessage.h"
-#include "Materials/Material.h"
-//#include "MessageLogModule.h"
-#include "PackageTools.h"
-#include "UObject/StrongObjectPtr.h"
 
 //added to include volume texture
 #include "Engine/VolumeTexture.h"
-
-//filehelper will be used for loading text file to array
-#include "Misc/FileHelper.h"
 
 #define LOCTEXT_NAMESPACE "assn5LoadFactory"
 
@@ -215,7 +200,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 					UE_LOG(LogTemp, Warning, TEXT("Incorrect value for ElementNumberOfChannels"));
 				
 				//for debugging purposes and commented out later
-				UE_LOG(LogTemp, Warning, TEXT("My num channels is %d"), myNumChannels);
+				//UE_LOG(LogTemp, Warning, TEXT("My num channels is %d"), myNumChannels);
 			}
 
 			else
