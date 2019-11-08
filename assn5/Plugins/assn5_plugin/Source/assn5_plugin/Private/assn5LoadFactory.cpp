@@ -20,69 +20,89 @@
 #include "PackageTools.h"
 #include "UObject/StrongObjectPtr.h"
 
+//added to include volume texture
+#include "Engine/VolumeTexture.h"
+
 #define LOCTEXT_NAMESPACE "assn5LoadFactory"
 
 Uassn5LoadFactory::Uassn5LoadFactory(const FObjectInitializer& ObjectInitializer)
 {
+	bCreateNew    = false;
+	bEditAfterNew = false;
+	bEditorImport = true;   // binary / general file source
+	bText         = false;  // text source
+	
+	SupportedClass = UVolumeTexture::StaticClass();
+	
 	Formats.Add(TEXT("mha;mha format"));
 	Formats.Add(TEXT("mhd;mhd format"));
 }
 
 UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InParent, FName InName, EObjectFlags Flags, const FString & Filename, const TCHAR * Parms, FFeedbackContext * Warn, bool & bOutOperationCanceled)
 {
-	/*
-	GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPreImport(this, InClass, InParent, InName, Parms);
-
-	Warn->Log(Filename);
-
-	//TStrongObjectPtr<UGLTFImportOptions> ImporterOptions(NewObject<UGLTFImportOptions>(GetTransientPackage(), TEXT("GLTF Importer Options")));
-	// show import options window
-	{
-		const FString Filepath = FPaths::ConvertRelativePathToFull(Filename);
-		const FString PackagePath = InParent->GetPathName();
-
-		//if (!GLTFImporterImpl::ShowOptionsWindow(Filepath, PackagePath, *ImporterOptions))
-		//{
-		//	bOutOperationCanceled = true;
-		//	return nullptr;
-		//}
-	}
-
-	//FGLTFImporterContext& Context = GLTFImporterModule->GetImporterContext();
-	// setup import options
-	{
-		//Context.StaticMeshFactory.SetUniformScale(ImporterOptions->ImportScale);
-		//Context.StaticMeshFactory.SetGenerateLightmapUVs(ImporterOptions->bGenerateLightmapUVs);
-	}
-
+	UVolumeTexture * myTexture = NewObject<UVolumeTexture>(InParent, InName, Flags);
+	
+	//FTexture2DMipMap * MipMap = new FTexture2DMipMap();
+	
+	//myTexture
+	
 	UObject* Object = nullptr;
-	/*if (Context.OpenFile(Filename))
-	{
-		const FString AssetName = Context.Asset.Name;
-		const FString NewPackageName = UPackageTools::SanitizePackageName(*(FPaths::GetPath(InParent->GetName()) / AssetName));
-		UObject*      ParentPackage = NewPackageName == InParent->GetName() ? InParent : CreatePackage(nullptr, *NewPackageName);
 
-		const TArray<UStaticMesh*>& CreatedMeshes = Context.CreateMeshes(ParentPackage, Flags, false);
-		Context.CreateMaterials(ParentPackage, Flags);
-		UpdateMeshes();
+	Object = myTexture;
 
-		if (CreatedMeshes.Num() == 1)
+		/*
+		GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPreImport(this, InClass, InParent, InName, Parms);
+
+		Warn->Log(Filename);
+
+		//TStrongObjectPtr<UGLTFImportOptions> ImporterOptions(NewObject<UGLTFImportOptions>(GetTransientPackage(), TEXT("GLTF Importer Options")));
+		// show import options window
 		{
-			Object = CreatedMeshes[0];
+			const FString Filepath = FPaths::ConvertRelativePathToFull(Filename);
+			const FString PackagePath = InParent->GetPathName();
+
+			//if (!GLTFImporterImpl::ShowOptionsWindow(Filepath, PackagePath, *ImporterOptions))
+			//{
+			//	bOutOperationCanceled = true;
+			//	return nullptr;
+			//}
 		}
-		else if (CreatedMeshes.Num() != 0)
+
+		//FGLTFImporterContext& Context = GLTFImporterModule->GetImporterContext();
+		// setup import options
 		{
-			Object = CreatedMeshes[0]->GetOutermost();
+			//Context.StaticMeshFactory.SetUniformScale(ImporterOptions->ImportScale);
+			//Context.StaticMeshFactory.SetGenerateLightmapUVs(ImporterOptions->bGenerateLightmapUVs);
 		}
-	}
-	*/
-	/**
-	GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPostImport(this, Object);
 
-	//GLTFImporterImpl::ShowLogMessages(Context.GetLogMessages());
+		UObject* Object = nullptr;
+		/*if (Context.OpenFile(Filename))
+		{
+			const FString AssetName = Context.Asset.Name;
+			const FString NewPackageName = UPackageTools::SanitizePackageName(*(FPaths::GetPath(InParent->GetName()) / AssetName));
+			UObject*      ParentPackage = NewPackageName == InParent->GetName() ? InParent : CreatePackage(nullptr, *NewPackageName);
 
-	return Object;
-	*/
+			const TArray<UStaticMesh*>& CreatedMeshes = Context.CreateMeshes(ParentPackage, Flags, false);
+			Context.CreateMaterials(ParentPackage, Flags);
+			UpdateMeshes();
 
-	return nullptr;
+			if (CreatedMeshes.Num() == 1)
+			{
+				Object = CreatedMeshes[0];
+			}
+			else if (CreatedMeshes.Num() != 0)
+			{
+				Object = CreatedMeshes[0]->GetOutermost();
+			}
+		}
+		*/
+		/**
+		GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPostImport(this, Object);
+
+		//GLTFImporterImpl::ShowLogMessages(Context.GetLogMessages());
+
+		return Object;
+		*/
+
+		return Object;
 }
