@@ -88,10 +88,29 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 			//}
 		}
 
-		else if (count == (arraySize -1))
+		else if (count == (arraySize - 1))
 		{
 			//for debugging purposes but commenting out for final program.
 			//UE_LOG(LogTemp, Warning, TEXT("The final line is %s"), *myString);
+
+			//has to contain an element data file
+			if (!(myString.Contains(TEXT("ElementDataFile"))))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Does not contain element data file in last line"));
+				return nullptr; 
+			}
+			else
+			{
+				//I am assuming format has "ElementDataFile = filename" with that exact format so I can safely right chop.
+				//Otherwise, it will have some file name which does not link to a correct file and the texture generated will not be correct.
+				//This is placing the impetus on users to meet my formatting standards. I will check if the file opens successfully however.
+				FString fileNameRaw = myString.RightChop(18);
+
+				//for debugging purposes. commenting out in final code
+				UE_LOG(LogTemp, Warning, TEXT("The filename is %s"), *fileNameRaw);
+
+				//FFileHelper::LoadFileToArray()
+			}
 		}
 		else
 		{
@@ -223,8 +242,9 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 					UE_LOG(LogTemp, Warning, TEXT("Datatype for color elements is incorrect"));
 					return nullptr;
 				}
+				
 				//for debugging purposes comment out later
-				UE_LOG(LogTemp, Warning, TEXT("Datatype for color elements is %s"),*elementType);
+				//UE_LOG(LogTemp, Warning, TEXT("Datatype for color elements is %s"),*elementType);
 			}
 
 			else
