@@ -60,6 +60,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 	int32 dimSizeY = -1;
 	int32 dimSizeZ = -1;
 	int32 myNumChannels = -1;
+	FString elementType = "error";
 
 	//reading over and logging array to confirm if this step worked
 	//also, taking actions based on contents of each file line
@@ -197,10 +198,33 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 					myNumChannels = tempInt;
 				}
 				else
+				{
 					UE_LOG(LogTemp, Warning, TEXT("Incorrect value for ElementNumberOfChannels"));
+					return nullptr;
+				}
 				
 				//for debugging purposes and commented out later
 				//UE_LOG(LogTemp, Warning, TEXT("My num channels is %d"), myNumChannels);
+			}
+
+			//check element type. since no extra credit, I only need to accept met_uchar not met_ufloat
+			else if (myString.Contains(TEXT("ElementType")))
+			{
+				//Check if it equals met_char. I am allowing for ignore case 
+				//and assuming formatting is exactly the same in terms of whitespace etc... 
+				//otherwise what if it contains the metuchar substring but is another type.
+				//For example imagine a type exists called MET_UCHARARRAY. FString::Contains is not sufficient
+				if (myString.Equals(TEXT("ElementType = MET_UCHAR"), ESearchCase::IgnoreCase))
+				{
+					elementType = "MET_UCHAR";
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Datatype for color elements is incorrect"));
+					return nullptr;
+				}
+				//for debugging purposes comment out later
+				UE_LOG(LogTemp, Warning, TEXT("Datatype for color elements is %s"),*elementType);
 			}
 
 			else
