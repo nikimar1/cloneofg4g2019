@@ -24,7 +24,8 @@
 
 Uassn5LoadFactory::Uassn5LoadFactory(const FObjectInitializer& ObjectInitializer)
 {
-
+	Formats.Add(TEXT("mha;mha format"));
+	Formats.Add(TEXT("mhd;mhd format"));
 }
 
 UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InParent, FName InName, EObjectFlags Flags, const FString & Filename, const TCHAR * Parms, FFeedbackContext * Warn, bool & bOutOperationCanceled)
