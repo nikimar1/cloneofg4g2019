@@ -121,7 +121,23 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 				//for debugging purposes, check if concatenated correctly. comment out later
 				UE_LOG(LogTemp, Warning, TEXT("The full path is %s"), *fullPathRaw);
 
-				//FFileHelper::LoadFileToArray()
+				//Tarray for storing contents of the elementdatafile
+				TArray <uint8> rawContents;
+
+				//load the binary file
+				bool worked = FFileHelper::LoadFileToArray(rawContents, *fullPathRaw);
+
+				if (!worked)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Loading elementdatafile did not work. Check formatting of your mhd/mha file."));
+					return nullptr;
+				}
+
+				//for debugging purposes see if it loaded. comment out for final implementation
+				UE_LOG(LogTemp, Warning, TEXT("True or false value of worked boolean %d. (1 is true)"),worked);
+
+				//now set values of the uvolume texture accordingly
+
 			}
 		}
 		else
