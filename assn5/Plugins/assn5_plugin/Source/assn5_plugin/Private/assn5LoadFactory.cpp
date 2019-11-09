@@ -13,8 +13,9 @@
 
 #include "Editor/UnrealEd/Public/Editor.h"
 
-//added to include volume texture
 #include "Engine/VolumeTexture.h"
+
+#include "Engine/Texture.h"
 
 #define LOCTEXT_NAMESPACE "assn5LoadFactory"
 
@@ -134,10 +135,35 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 				}
 
 				//for debugging purposes see if it loaded. comment out for final implementation
-				UE_LOG(LogTemp, Warning, TEXT("True or false value of worked boolean %d. (1 is true)"),worked);
+				//UE_LOG(LogTemp, Warning, TEXT("True or false value of worked boolean %d. (1 is true)"),worked);
 
-				//now set values of the uvolume texture accordingly
+				//get pointer to the tarray.
+				uint8 * rawPointer = rawContents.GetData();
 
+				//Now set values of the uvolume texture accordingly. 
+				//Takes dimensions, mipmap of 1, g8 format since no extra credit, and the data in the raw file.
+				myTexture->Source.Init(dimSizeX, dimSizeY, dimSizeZ, 1, TSF_G8, rawPointer);
+
+				//set srgb to 0
+				myTexture->SRGB = 0;
+
+				//debug my source format and why it is not begoming g8. comment out later
+				//ETextureSourceFormat temp2 = myTexture->Source.GetFormat();
+
+				//print debug results. comment out later
+				//UE_LOG(LogTemp, Warning, TEXT("my source format is %d"), temp2);
+				//UE_LOG(LogTemp, Warning, TEXT("my desired source format is %d"), TSF_G8);
+
+
+				//update texture
+				myTexture->UpdateResource();
+
+				//debug my source format and why it is not begoming g8. comment out later
+				//ETextureSourceFormat temp = myTexture->Source.GetFormat();
+
+				//print debug results. comment out later
+				//UE_LOG(LogTemp, Warning, TEXT("after update my source format is %d"), temp);
+				//UE_LOG(LogTemp, Warning, TEXT("after update my desired source format is %d"), TSF_G8);
 			}
 		}
 		else
