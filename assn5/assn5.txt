@@ -1,0 +1,11 @@
+I believe everything works but I am uncertain about that. 
+The imported texture looks exactly as it should in the two views in editor. 
+However, I get errors I do not understand when I try to apply it to a default generated material.
+It might be the case that this is simply a seperate thing beyond the scope of the project. 
+I did see something about uv layers being used to apply a texture to a material while the scope 
+of the project was only creating a material importer. Those uvw items needed for a volume texture are what give me an error.
+Furthermore, I wanted to mention that my material importer uses rightchop to remove parts of substrings. 
+It is therefore dependent on correct formatting (though it ignores case).
+Formatting has to basically match the bucky.mhd file except that one can probably get away with using extra spaces after the equal sign.
+We were not told to debug for proper string formatting or extract values in any particular way, 
+so I took the liberty of assuming if the file is formatted wrong, it should have an error.
