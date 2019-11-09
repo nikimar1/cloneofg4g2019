@@ -42,6 +42,12 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 	//get full file path
 	const FString Filepath = FPaths::ConvertRelativePathToFull(Filename);
 
+	//get directory that this full file path is stored in for use later with binary directory
+	const FString myDirectory = FPaths::GetPath(Filepath);
+
+	//for debugging purposes. comment out later
+	UE_LOG(LogTemp, Warning, TEXT("Opening files at the following directory: %s"), *myDirectory);
+
 	//logging full file path for debugging but commenting out for final project
 	//UE_LOG(LogTemp, Warning, TEXT("Opening file at the following path: %s"), *Filepath);
 	
@@ -107,7 +113,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 				FString fileNameRaw = myString.RightChop(18);
 
 				//for debugging purposes. commenting out in final code
-				UE_LOG(LogTemp, Warning, TEXT("The filename is %s"), *fileNameRaw);
+				//UE_LOG(LogTemp, Warning, TEXT("The filename is %s"), *fileNameRaw);
 
 				//FFileHelper::LoadFileToArray()
 			}
