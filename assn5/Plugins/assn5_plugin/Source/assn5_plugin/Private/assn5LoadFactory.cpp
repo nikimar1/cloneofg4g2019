@@ -46,7 +46,7 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 	const FString myDirectory = FPaths::GetPath(Filepath);
 
 	//for debugging purposes. comment out later
-	UE_LOG(LogTemp, Warning, TEXT("Opening files at the following directory: %s"), *myDirectory);
+	//UE_LOG(LogTemp, Warning, TEXT("Opening files at the following directory: %s"), *myDirectory);
 
 	//logging full file path for debugging but commenting out for final project
 	//UE_LOG(LogTemp, Warning, TEXT("Opening file at the following path: %s"), *Filepath);
@@ -114,6 +114,12 @@ UObject * Uassn5LoadFactory::FactoryCreateFile(UClass * InClass, UObject * InPar
 
 				//for debugging purposes. commenting out in final code
 				//UE_LOG(LogTemp, Warning, TEXT("The filename is %s"), *fileNameRaw);
+
+				//concatenate path,  forward slash, and filename
+				FString fullPathRaw = myDirectory+FString("/")+fileNameRaw;
+
+				//for debugging purposes, check if concatenated correctly. comment out later
+				UE_LOG(LogTemp, Warning, TEXT("The full path is %s"), *fullPathRaw);
 
 				//FFileHelper::LoadFileToArray()
 			}
