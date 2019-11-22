@@ -3744,6 +3744,54 @@ void UMaterialExpressionReflectionVectorWS::GetCaption(TArray<FString>& OutCapti
 }
 #endif // WITH_EDITOR
 
+//my code for my own material expression by Nikita. commenting so I can easily find it
+
+UMaterialExpressionAssn6Random::UMaterialExpressionAssn6Random(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	// Structure to hold one-time initialization
+	struct FConstructorStatics
+	{
+		FText NAME_Vectors;
+		FConstructorStatics()
+			: NAME_Vectors(LOCTEXT( "Vectors", "Vectors" ))
+		{
+		}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+#if WITH_EDITORONLY_DATA
+	MenuCategories.Add(ConstructorStatics.NAME_Vectors);
+
+	bShaderInputData = true;
+#endif
+}
+
+
+#if WITH_EDITOR
+int32 UMaterialExpressionAssn6Random::Compile(class FMaterialCompiler* Compiler, int32 OutputIndex)
+{
+	int32 Result = CustomWorldNormal.Compile(Compiler);
+	if (CustomWorldNormal.Expression) 
+	{
+		// Don't do anything special here in regards to if the Expression is a Reroute node, the compiler will handle properly internally and return INDEX_NONE if rerouted to nowhere.
+		return Compiler->ReflectionAboutCustomWorldNormal(Result, bNormalizeCustomWorldNormal); 
+	}
+	else
+	{
+		return Compiler->ReflectionVector();
+	}
+}
+
+void UMaterialExpressionAssn6Random::GetCaption(TArray<FString>& OutCaptions) const
+{
+	OutCaptions.Add(TEXT("Reflection Vector"));
+}
+#endif // WITH_EDITOR
+
+//end of my code for my own material expression by Nikita. commenting so I can easily find it
+
+
 //
 //	UMaterialExpressionPanner
 //
