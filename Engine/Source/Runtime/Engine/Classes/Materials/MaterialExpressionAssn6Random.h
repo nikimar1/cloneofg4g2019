@@ -7,7 +7,7 @@
 #include "UObject/ObjectMacros.h"
 #include "MaterialExpressionIO.h"
 #include "Materials/MaterialExpression.h"
-#include "MaterialExpressionReflectionVectorWS.generated.h"
+#include "MaterialExpressionAssn6Random.generated.h"
 
 UCLASS(collapsecategories, hidecategories=Object, MinimalAPI)
 class UMaterialExpressionAssn6Random : public UMaterialExpression
