@@ -5380,6 +5380,31 @@ protected:
 		}
 	}
 
+	//Nikita code assn6
+	virtual int32 Assn6Random(int32 UV, int32 xEdges, int32 yEdges)override
+	{
+		//if (ErrorUnlessFeatureLevelSupported(ERHIFeatureLevel::ES2) == INDEX_NONE)
+		//{
+		//	return INDEX_NONE;
+		//}
+
+		if (UV == INDEX_NONE)
+		{
+			return INDEX_NONE;
+		}
+
+		int32 xEdgesConst = Constant(xEdges);
+		int32 yEdgesConst = Constant(yEdges);
+
+		return AddCodeChunk(MCT_Float2,
+			TEXT("MaterialExpressionAssn6Random(%s,%s,%s)"),
+			*GetParameterCode(UV),
+			*GetParameterCode(xEdgesConst),
+			*GetParameterCode(yEdgesConst));
+	}
+
+
+
 	virtual int32 BlackBody( int32 Temp ) override
 	{
 		if( Temp == INDEX_NONE )

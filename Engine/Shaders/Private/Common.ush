@@ -1372,6 +1372,13 @@ MaterialFloat4 MaterialExpressionVectorNoise(MaterialFloat3 Position, int Qualit
 	return result;
 }
 
+//Nikita material expression in common.ush. commenting to find it easily
+MaterialFloat2 MaterialExpressionAssn6Random(MaterialFloat2 UV, int xEdges, int yEdges)
+{
+	float2 result = float2(1,1);
+	return result;
+}
+
 
 /*
 * Clips a ray to an AABB.  Does not handle rays parallel to any of the planes.

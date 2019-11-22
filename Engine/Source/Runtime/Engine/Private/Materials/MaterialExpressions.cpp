@@ -1392,7 +1392,7 @@ EMaterialSamplerType UMaterialExpressionTextureBase::GetSamplerTypeForTexture(co
 	return SAMPLERTYPE_Color;
 }
 
-
+//leavung marker for myself to more easily find texture sample example
 
 UMaterialExpressionTextureSample::UMaterialExpressionTextureSample(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -3771,6 +3771,7 @@ UMaterialExpressionAssn6Random::UMaterialExpressionAssn6Random(const FObjectInit
 #if WITH_EDITOR
 int32 UMaterialExpressionAssn6Random::Compile(class FMaterialCompiler* Compiler, int32 OutputIndex)
 {
+
 	int32 Result = CustomWorldNormal.Compile(Compiler);
 	if (CustomWorldNormal.Expression) 
 	{
@@ -3785,7 +3786,7 @@ int32 UMaterialExpressionAssn6Random::Compile(class FMaterialCompiler* Compiler,
 
 void UMaterialExpressionAssn6Random::GetCaption(TArray<FString>& OutCaptions) const
 {
-	OutCaptions.Add(TEXT("Reflection Vector"));
+	OutCaptions.Add(TEXT("My assn6 random node"));
 }
 #endif // WITH_EDITOR
 

@@ -281,6 +281,10 @@ public:
 	virtual int32 TemporalSobol(int32 Index, int32 Seed) = 0;
 	virtual int32 Noise(int32 Position, float Scale, int32 Quality, uint8 NoiseFunction, bool bTurbulence, int32 Levels, float OutputMin, float OutputMax, float LevelScale, int32 FilterWidth, bool bTiling, uint32 RepeatSize) = 0;
 	virtual int32 VectorNoise(int32 Position, int32 Quality, uint8 NoiseFunction, bool bTiling, uint32 RepeatSize) = 0;
+
+	//Nikita assn6 code in order to easily find it
+	virtual int32 Assn6Random(int32 UV, int32 xEdges, int32 yEdges) = 0;
+	
 	virtual int32 BlackBody( int32 Temp ) = 0;
 	virtual int32 DistanceToNearestSurface(int32 PositionArg) = 0;
 	virtual int32 DistanceFieldGradient(int32 PositionArg) = 0;
@@ -512,6 +516,13 @@ public:
 	{
 		return Compiler->VectorNoise(Position, Quality, NoiseFunction, bTiling, TileSize);
 	}
+
+	//Nikita assn6 code comment to easily find it
+	virtual int32 Assn6Random(int32 UV, int32 xEdges, int32 yEdges) override
+	{
+		return Compiler->VectorNoise(UV, xEdges, yEdges);
+	}
+
 	virtual int32 BlackBody( int32 Temp ) override { return Compiler->BlackBody(Temp); }
 	virtual int32 DistanceToNearestSurface(int32 PositionArg) override { return Compiler->DistanceToNearestSurface(PositionArg); }
 	virtual int32 DistanceFieldGradient(int32 PositionArg) override { return Compiler->DistanceFieldGradient(PositionArg); }
