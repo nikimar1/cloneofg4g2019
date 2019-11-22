@@ -22,6 +22,25 @@ class UMaterialExpressionAssn6Random : public UMaterialExpression
 	//UPROPERTY(EditAnywhere, Category=UMaterialExpressionReflectionVectorWS, meta=(DisplayName = "Normalize custom world normal"))
 	//uint32 bNormalizeCustomWorldNormal : 1;
 
+
+
+	/** 2 dimensional vector */
+	UPROPERTY()
+	FExpressionInput UV;
+
+	/**
+	  *xEdges
+	  */
+	UPROPERTY(EditAnywhere, Category = MaterialExpressionAssn6Random, meta=(UIMin = "1"))
+	uint32 xEdges;
+
+	/**
+	  *yEdges
+	  */
+	UPROPERTY(EditAnywhere, Category = MaterialExpressionAssn6Random, meta=(UIMin = "1"))
+	uint32 yEdges;
+
+
 	//~ Begin UMaterialExpression Interface
 #if WITH_EDITOR
 	virtual int32 Compile(class FMaterialCompiler* Compiler, int32 OutputIndex) override;
