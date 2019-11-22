@@ -3752,21 +3752,21 @@ UMaterialExpressionAssn6Random::UMaterialExpressionAssn6Random(const FObjectInit
 	// Structure to hold one-time initialization
 	struct FConstructorStatics
 	{
-		FText NAME_Vectors;
+		FText NAME_Utility;
 		FConstructorStatics()
-			: NAME_Vectors(LOCTEXT( "Vectors", "Vectors" ))
+			: NAME_Utility(LOCTEXT("Utility", "Utility"))
 		{
 		}
 	};
 	static FConstructorStatics ConstructorStatics;
 
-#if WITH_EDITORONLY_DATA
-	MenuCategories.Add(ConstructorStatics.NAME_Vectors);
+	xEdges = 1;
+	yEdges = 1;
 
-	bShaderInputData = true;
+#if WITH_EDITORONLY_DATA
+	MenuCategories.Add(ConstructorStatics.NAME_Utility);
 #endif
 }
-
 
 #if WITH_EDITOR
 int32 UMaterialExpressionAssn6Random::Compile(class FMaterialCompiler* Compiler, int32 OutputIndex)
