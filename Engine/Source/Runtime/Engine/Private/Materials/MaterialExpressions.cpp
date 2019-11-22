@@ -3772,16 +3772,36 @@ UMaterialExpressionAssn6Random::UMaterialExpressionAssn6Random(const FObjectInit
 int32 UMaterialExpressionAssn6Random::Compile(class FMaterialCompiler* Compiler, int32 OutputIndex)
 {
 
-	int32 Result = CustomWorldNormal.Compile(Compiler);
-	if (CustomWorldNormal.Expression) 
+	//int32 Result = CustomWorldNormal.Compile(Compiler);
+	//if (CustomWorldNormal.Expression) 
+	//{
+	//	// Don't do anything special here in regards to if the Expression is a Reroute node, the compiler will handle properly internally and return INDEX_NONE if rerouted to nowhere.
+	//	return Compiler->ReflectionAboutCustomWorldNormal(Result, bNormalizeCustomWorldNormal); 
+	//}
+	//else
+	//{
+	//	return Compiler->ReflectionVector();
+	//}
+
+
+	int32 UVInput;
+
+	if(!UV.GetTracedInput().Expression)
 	{
-		// Don't do anything special here in regards to if the Expression is a Reroute node, the compiler will handle properly internally and return INDEX_NONE if rerouted to nowhere.
-		return Compiler->ReflectionAboutCustomWorldNormal(Result, bNormalizeCustomWorldNormal); 
+		return Compiler->Errorf(TEXT("Missing UV input"));
 	}
+
 	else
 	{
-		return Compiler->ReflectionVector();
+		UVInput = UV.Compile(Compiler);
 	}
+	//else
+	//{
+	//	UVInput = Compiler->WorldPosition(WPT_Default);
+	//}
+
+	return Compiler->Assn6Random(UVInput, xEdges, yEdges);
+
 }
 
 void UMaterialExpressionAssn6Random::GetCaption(TArray<FString>& OutCaptions) const

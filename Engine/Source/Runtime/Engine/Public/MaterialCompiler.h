@@ -520,7 +520,7 @@ public:
 	//Nikita assn6 code comment to easily find it
 	virtual int32 Assn6Random(int32 UV, int32 xEdges, int32 yEdges) override
 	{
-		return Compiler->VectorNoise(UV, xEdges, yEdges);
+		return Compiler->Assn6Random(UV, xEdges, yEdges);
 	}
 
 	virtual int32 BlackBody( int32 Temp ) override { return Compiler->BlackBody(Temp); }
