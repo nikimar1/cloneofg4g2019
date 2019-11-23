@@ -1,0 +1,5 @@
+Assn6 Nikita Markovych
+
+I was able to accomplish modification of c++ engine code but did not fully understand the shader code, especially section 12.2. 
+Therefore my shader code algorithm did not work but my modified engine code did. My attempt at 12.2 is commented out. 
+I did not attempt extra credit.

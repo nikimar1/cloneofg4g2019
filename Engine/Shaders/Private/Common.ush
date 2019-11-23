@@ -1375,91 +1375,87 @@ MaterialFloat4 MaterialExpressionVectorNoise(MaterialFloat3 Position, int Qualit
 //Nikita material expression in common.ush. commenting to find it easily
 MaterialFloat2 MaterialExpressionAssn6Random(MaterialFloat2 UV, int xEdges, int yEdges)
 {
-	//float2 result = float2(1,1);
-	//float TileIndex1D(const float e1, const float e2)
-
-	//{
+	
   	float2 result;
   	float2 CellUV = UV;
-  	//frac(UV);
+
   	float2 CellNum = floor(UV);
 
-  	int e1x = CellNum.x;
+  	int w = CellNum.x;
 
-  	int e2x = CellUV.x;
+  	int y = CellUV.x;
 
-  	if (e1x < e2x) 
-  		result.x = (2 * e1x + e2x * e2x);
+  	if (w < y) 
+  		result.x = (2 * w + y * w);
 
-  	else if (e1x == e2x)
+  	else if (w == y)
   	{
 
-	    if (e1x > 0) 
-	    	result.x = ((e1x + 1) * (e1x + 1) - 2);
+	    if (w > 0) 
+	    	result.x = ((w + 1) * (w + 1) - 2);
     	else 
     		result.x = 0;
     }
   	else
   	{
-    	if (e2x > 0) 
-    		result.x = (e1x * e1x + 2 * e2x - 1);
+    	if (y > 0) 
+    		result.x = (w * w + 2 * y - 1);
 
     	else 
-    		result.x = ((e1x + 1) * (e1x + 1) - 1);
-      	//return result;
+    		result.x = ((w + 1) * (y + 1) - 1);
     }
-	//}
 
-	int e1y = CellNum.y;
+	int x = CellNum.y;
 
-  	int e2y = CellUV.y;
+  	int z = CellUV.y;
 
-  	if (e1y < e2y) 
-  		result.y = (2 * e1y + e2y * e2y);
+  	if (x < z) 
+  		result.y = (2 * x + z * z);
 
-  	else if (e1y == e2y)
+  	else if (x == z)
   	{
 
-	    if (e1y > 0) 
-	    	result.y = ((e1y + 1) * (e1y + 1) - 2);
+	    if (x > 0) 
+	    	result.y = ((x + 1) * (x + 1) - 2);
     	else 
     		result.y = 0;
     }
   	else
   	{
-    	if (e2y > 0) 
-    		result.y = (e1y * e1y + 2 * e2y - 1);
+    	if (z > 0) 
+    		result.y = (x * x + 2 * z - 1);
 
     	else 
-    		result.y = ((e1y + 1) * (e1y + 1) - 1);
-      	//return result;
+    		result.y = ((x + 1) * (x + 1) - 1);
     }
 
 
+    //my attempt at 12-2 is very wrong so I am commenting it out
+    /*
 
-	//float2 TileIndex2D(const float4 e)
+    float2 output;
 
-	//{
+    float2 mappingScale = float2(xEdges,yEdges);
 
-  	//float2 result;
+    float2 mappingAddress = result* mappingScale;
 
-  	// orthogonally compute the horizontal and vertical locations
+    float2 whichTile = floor(frac(mappingAddress/mappingScale)*mappingScale);
+
+    float2 tileScale = float2(50,50);
+
+    output = ((whichTile + frac(mappingAddress))/tileScale);
 
 
+    //edgeColorx = RandBBSfloat(0)*xEdges;
 
-  	// the x, y, z, w components of e store
+    //edgeColorY = RandBBSfloat(0)*yEdges;
 
-  	// the south, east, north, and west edge coding
+    return output;
 
-  	//result.x = TileIndex1D(e.w, e.y);
+    */
 
-  	//result.y = TileIndex1D(e.x, e.z);
-
-	//return result;
-
-	//}
-
-	return result;
+    return result;
+	
 }
 
 
