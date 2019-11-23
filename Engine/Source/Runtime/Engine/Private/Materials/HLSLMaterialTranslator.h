@@ -29,6 +29,10 @@
 #include "Materials/MaterialExpressionCustom.h"
 #include "Materials/MaterialExpressionCustomOutput.h"
 #include "Materials/MaterialExpressionVectorNoise.h"
+
+//Nikita added include for assn6
+#include "Materials/MaterialExpressionAssn6Random.h"
+
 #include "Materials/MaterialExpressionVertexInterpolator.h"
 #include "Materials/MaterialUniformExpressions.h"
 #include "ParameterCollection.h"

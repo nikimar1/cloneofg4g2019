@@ -1375,7 +1375,90 @@ MaterialFloat4 MaterialExpressionVectorNoise(MaterialFloat3 Position, int Qualit
 //Nikita material expression in common.ush. commenting to find it easily
 MaterialFloat2 MaterialExpressionAssn6Random(MaterialFloat2 UV, int xEdges, int yEdges)
 {
-	float2 result = float2(1,1);
+	//float2 result = float2(1,1);
+	//float TileIndex1D(const float e1, const float e2)
+
+	//{
+  	float2 result;
+  	float2 CellUV = UV;
+  	//frac(UV);
+  	float2 CellNum = floor(UV);
+
+  	int e1x = CellNum.x;
+
+  	int e2x = CellUV.x;
+
+  	if (e1x < e2x) 
+  		result.x = (2 * e1x + e2x * e2x);
+
+  	else if (e1x == e2x)
+  	{
+
+	    if (e1x > 0) 
+	    	result.x = ((e1x + 1) * (e1x + 1) - 2);
+    	else 
+    		result.x = 0;
+    }
+  	else
+  	{
+    	if (e2x > 0) 
+    		result.x = (e1x * e1x + 2 * e2x - 1);
+
+    	else 
+    		result.x = ((e1x + 1) * (e1x + 1) - 1);
+      	//return result;
+    }
+	//}
+
+	int e1y = CellNum.y;
+
+  	int e2y = CellUV.y;
+
+  	if (e1y < e2y) 
+  		result.y = (2 * e1y + e2y * e2y);
+
+  	else if (e1y == e2y)
+  	{
+
+	    if (e1y > 0) 
+	    	result.y = ((e1y + 1) * (e1y + 1) - 2);
+    	else 
+    		result.y = 0;
+    }
+  	else
+  	{
+    	if (e2y > 0) 
+    		result.y = (e1y * e1y + 2 * e2y - 1);
+
+    	else 
+    		result.y = ((e1y + 1) * (e1y + 1) - 1);
+      	//return result;
+    }
+
+
+
+	//float2 TileIndex2D(const float4 e)
+
+	//{
+
+  	//float2 result;
+
+  	// orthogonally compute the horizontal and vertical locations
+
+
+
+  	// the x, y, z, w components of e store
+
+  	// the south, east, north, and west edge coding
+
+  	//result.x = TileIndex1D(e.w, e.y);
+
+  	//result.y = TileIndex1D(e.x, e.z);
+
+	//return result;
+
+	//}
+
 	return result;
 }
 
