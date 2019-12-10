@@ -1,0 +1,36 @@
+CMSC 491 / Graphics for Games
+Assignment 5 Grading Rubric
+
+25/25 - Basics
+  5  /5 - Created assn5 project and map
+  5  /5 - Necessary files checked in (uproject, Config/, Content/, Plugins/)
+  5  /5 - Transient files not checked in (including Binaries/,
+         DerivedDataCache/, Intermediate/, Saved/, etc.)
+  5  /5 - Multiple checkins during development
+  5  /5 - Did not use github web upload
+10/10 - Plugin created (have auto-generated directory structure, and module class files)
+20/20 - UFactory class
+  5  /5 - New class derived from UFactory with UCLASS and GENERATED_UCLASS_BODY macros
+  5  /5 - Added UnrealEd to Build.cs
+  5  /5 - Formats.Add in constructor for mha and mhd
+  5  /5 - Set bEditorImport and SupportedClass in constructor
+30/30 - FactoryCreateFile
+  5  /5 - Function override declared and defined
+  5  /5 - Creates and returns a UVolumeTexture
+  5  /5 - Parse header elements
+  5  /5 - Log errors
+  5  /5 - Find and load data
+  5  /5 - Initialize volume with size, format, and data
+15/15 - Results
+ 5   /5 - assn5.txt file committed
+ 5   /5 - Relevant comments in assn5.txt
+ 5   /5 - Include images demonstrating project
+0/20 - Extra Credit
+0    /5 - Support Dims=2
+0    /5 - Support ElementNumberOfChannels=2, 3, or 4
+0    /5 - Support ElementType=MET_FLOAT
+0    /5 - Support ElementDataFile=LOCAL
+----
+100/100 - Total (120 with extra credit)
+
+
