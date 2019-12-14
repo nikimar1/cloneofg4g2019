@@ -1,0 +1,18 @@
+I was unable to figure out how to compile the renderer module after my code changes. 
+Thus I was also unable to implement sobel edge detection.
+I attempted looking at PostProcessMotionBlur.cpp h and usf files
+as well as the postprocessbloomsetup cpp and h files and the postprocessbloom usf file. I was unable to get this project working.
+
+my console variable is declared as follows:
+/////my stuff
+static TAutoConsoleVariable<int32> CVarmypostprocess(
+	TEXT("r.mypostprocess"),
+	0,
+	TEXT("HACK: Set to 1 to use my post process"),
+	ECVF_RenderThreadSafe);
+/////	
+
+so it would be known as r.mypostprocess.
+
+Here is a video of said non-working project:
+https://www.youtube.com/watch?v=FxPO3rV15M0&feature=youtu.be
