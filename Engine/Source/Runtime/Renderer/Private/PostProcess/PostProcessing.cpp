@@ -17,6 +17,9 @@
 #include "PostProcess/PostProcessMaterial.h"
 #include "PostProcess/PostProcessWeightedSampleSum.h"
 #include "PostProcess/PostProcessBloomSetup.h"
+////my stuff
+#include "PostProcess/mypostprocess.h"
+////
 #include "PostProcess/PostProcessMobile.h"
 #include "PostProcess/PostProcessDownsample.h"
 #include "PostProcess/PostProcessHistogram.h"
@@ -65,6 +68,15 @@ static TAutoConsoleVariable<int32> CVarUseMobileBloom(
 	0,
 	TEXT("HACK: Set to 1 to use mobile bloom."),
 	ECVF_Scalability | ECVF_RenderThreadSafe);
+	
+	
+/////my stuff
+static TAutoConsoleVariable<int32> CVarmypostprocess(
+	TEXT("r.mypostprocess"),
+	0,
+	TEXT("HACK: Set to 1 to use my post process"),
+	ECVF_RenderThreadSafe);
+/////	
 
 static TAutoConsoleVariable<float> CVarDepthOfFieldNearBlurSizeThreshold(
 	TEXT("r.DepthOfField.NearBlurSizeThreshold"),
@@ -229,6 +241,10 @@ static TAutoConsoleVariable<float> CVarTemporalAAHistorySP(
 
 
 IMPLEMENT_SHADER_TYPE(,FPostProcessVS,TEXT("/Engine/Private/PostProcessBloom.usf"),TEXT("MainPostprocessCommonVS"),SF_Vertex);
+
+
+//////my code. nvm commenting it out
+///IMPLEMENT_SHADER_TYPE(,FPostProcessVS,TEXT("/Engine/Private/PostProcessBloom.usf"),TEXT("MainPostprocessCommonVS"),SF_Vertex);
 
 static bool HasPostProcessMaterial(FPostprocessContext& Context, EBlendableLocation InLocation);
 
@@ -1479,6 +1495,22 @@ void FPostProcessing::Process(FRHICommandListImmediate& RHICmdList, const FViewI
 		FRenderingCompositeOutputRef SSRInputChain;
 
 		// add the passes we want to add to the graph (commenting a line means the pass is not inserted into the graph) ---------
+		
+		//////my stuff. adding my code for post processing if my cvar = 1
+		if(CVarmypostprocess.GetValueOnRenderThread() == 1)
+		{
+			//const bool bIsComputePass = ShouldDoComputePostProcessing(Context.View);
+			FRenderingCompositePass* myPass = Context.Graph.RegisterPass( new(FMemStack::Get()) FRCPassPostProcessMotionBlur());
+			myPass->SetInput( ePId_Input0, Context.FinalOutput );
+			myPass->SetInput( ePId_Input1, Context.SceneDepth );
+			myPass->SetInput( ePId_Input2, Context.SceneColor);
+			//MotionBlurPass->SetInput( ePId_Input2, VelocityInput );
+			//MotionBlurPass->SetInput( ePId_Input3, MaxTileVelocity );
+					
+			Context.FinalOutput = FRenderingCompositeOutputRef( myPass );
+		}
+		
+		
 
 		if (AllowFullPostProcessing(View, FeatureLevel))
 		{
@@ -1697,6 +1729,8 @@ void FPostProcessing::Process(FRHICommandListImmediate& RHICmdList, const FViewI
 				FRenderingCompositeOutputRef MaxTileVelocity;
 
 				{
+					
+					///I am looking at this as an example of what to do
 					check(!VelocityFlattenPass);
 					VelocityFlattenPass = Context.Graph.RegisterPass( new(FMemStack::Get()) FRCPassPostProcessVelocityFlatten() );
 					VelocityFlattenPass->SetInput( ePId_Input0, VelocityInput );

@@ -22,21 +22,21 @@ class FmypostprocessPS : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FmypostprocessPS, Global);
 
-	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
-	{
-		return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM4);
-	}	
+	//static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+	//{
+	//	return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM4);
+	//}	
 	
-	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
-	{
-		FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
+	//static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+	//{
+	//	FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
 
-		if( !IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM5) )
-		{
+	//	if( !IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM5) )
+	//	{
 			//Need to hack in exposure scale for < SM5
-			OutEnvironment.SetDefine(TEXT("NO_EYEADAPTATION_EXPOSURE_FIX"), 1);
-		}
-	}
+	//		OutEnvironment.SetDefine(TEXT("NO_EYEADAPTATION_EXPOSURE_FIX"), 1);
+	//	}
+	//}
 
 	/** Default constructor. */
 	FmypostprocessPS() {}
@@ -53,6 +53,7 @@ public:
 		BloomThreshold.Bind(Initializer.ParameterMap, TEXT("BloomThreshold"));
 	}
 
+	
 	template <typename TRHICmdList>
 	void SetPS(TRHICmdList& RHICmdList, const FRenderingCompositePassContext& Context)
 	{

@@ -16,9 +16,9 @@
 class FRCPassmypostprocess : public TRenderingCompositePassBase<2, 1>
 {
 public:
-	FRCPassmypostprocess(bool bInIsComputePass)
+	FRCPassmypostprocess()
 	{
-		bIsComputePass = bInIsComputePass;
+		bIsComputePass = true;
 		bPreferAsyncCompute = false;
 	}
 
