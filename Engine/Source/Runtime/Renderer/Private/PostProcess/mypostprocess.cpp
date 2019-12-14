@@ -4,6 +4,238 @@
 	mypostprocess.cpp: my post process implementation for assn7
 =============================================================================*/
 
+//#include "PostProcess/PostProcessMotionBlur.h"
+#include "PostProcess/mypostprocess.h"
+#include "StaticBoundShaderState.h"
+#include "CanvasTypes.h"
+#include "RenderTargetTemp.h"
+#include "SceneUtils.h"
+#include "PostProcess/SceneRenderTargets.h"
+#include "SceneRenderTargetParameters.h"
+#include "ScenePrivate.h"
+#include "PostProcess/SceneFilterRendering.h"
+#include "CompositionLighting/PostProcessAmbientOcclusion.h"
+#include "PostProcess/PostProcessing.h"
+#include "DeferredShadingRenderer.h"
+#include "ClearQuad.h"
+#include "PipelineStateCache.h"
+#include "SpriteIndexBuffer.h"
+
+//const int32 kMotionBlurTileSize = 16;
+
+//const int32 GMotionBlurComputeTileSizeX = 8;
+//const int32 GMotionBlurComputeTileSizeY = 8;
+
+FIntPoint GetMyNumTiles16x16( FIntPoint PixelExtent )
+{
+	uint32 TilesX = FMath::DivideAndRoundUp(PixelExtent.X, 16);
+	uint32 TilesY = FMath::DivideAndRoundUp(PixelExtent.Y, 16);
+	return FIntPoint( TilesX, TilesY );
+}
+
+/*
+FVector4 GetmyParameters( const FRenderingCompositePassContext& Context, float Scale = 1.0f )
+{
+	const float TileSize = 16;
+
+	const float SizeX = Context.SceneColorViewRect.Width();
+	const float SizeY = Context.SceneColorViewRect.Height();
+	const float AspectRatio = SizeY / SizeX;
+
+	const FSceneViewState* ViewState = (FSceneViewState*) Context.ViewState;
+	//float MotionBlurTimeScale = ViewState ? ViewState->MotionBlurTimeScale : 1.0f;
+	//float MotionBlurScale = 0.5f * MotionBlurTimeScale * Context.View.FinalPostProcessSettings.MotionBlurAmount;
+
+	// 0:no 1:full screen width, percent conversion
+	//float MaxVelocity = Context.View.FinalPostProcessSettings.MotionBlurMax / 100.0f;
+
+	// Scale by 0.5 due to blur samples going both ways
+	//float PixelScale = Scale * SizeX * 0.5f;
+
+	//FVector4 MotionBlurParameters(
+	//	AspectRatio,
+	//	PixelScale * MotionBlurScale,			// Scale for pixels
+	//	PixelScale * MotionBlurScale / TileSize,// Scale for tiles
+	//	FMath::Abs( PixelScale ) * MaxVelocity	// Max velocity pixels
+	//);
+
+	return MotionBlurParameters;
+}
+*/
+
+FVector4 GetMySceneColorBufferUVToViewBufferUV(const FRenderingCompositePassContext& Context)
+{
+	const FSceneRenderTargets& SceneContext = FSceneRenderTargets::Get(Context.RHICmdList);
+
+	FVector2D SceneColorOffset = FVector2D(Context.SceneColorViewRect.Min) / FVector2D(Context.ReferenceBufferSize);
+	FVector2D SceneColorExtent = FVector2D(Context.SceneColorViewRect.Size()) / FVector2D(Context.ReferenceBufferSize);
+	FVector2D ViewOffset = FVector2D(Context.View.ViewRect.Min) / FVector2D(SceneContext.GetBufferSizeXY());
+	FVector2D ViewExtent = FVector2D(Context.View.ViewRect.Size()) / FVector2D(SceneContext.GetBufferSizeXY());
+
+	FVector4 SceneColorBufferUVToViewBufferUVValue;
+
+	SceneColorBufferUVToViewBufferUVValue.X = ViewExtent.X / SceneColorExtent.X;
+	SceneColorBufferUVToViewBufferUVValue.Y = ViewExtent.Y / SceneColorExtent.Y;
+	SceneColorBufferUVToViewBufferUVValue.Z = ViewOffset.X - SceneColorBufferUVToViewBufferUVValue.X * SceneColorOffset.X;
+	SceneColorBufferUVToViewBufferUVValue.W = ViewOffset.Y - SceneColorBufferUVToViewBufferUVValue.Y * SceneColorOffset.Y;
+
+	return SceneColorBufferUVToViewBufferUVValue;
+}
+
+class FPostProcessMyProcess : public FGlobalShader
+{
+	DECLARE_SHADER_TYPE(FPostProcessMyProcess, Global);
+
+	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
+	{
+		return IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM5);
+	}
+
+	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
+	{
+		FGlobalShader::ModifyCompilationEnvironment(Parameters, OutEnvironment);
+	}
+
+	FPostProcessMyProcess() {}
+
+public:
+	//FShaderParameter		OutVelocityFlat;		// UAV
+	//FShaderParameter		OutMaxTileVelocity;		// UAV
+	FShaderParameter  OutColor;
+
+
+	FPostProcessMyProcess(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
+		: FGlobalShader(Initializer)
+	{
+		PostprocessParameter.Bind(Initializer.ParameterMap);
+		//MotionBlurParameters.Bind(Initializer.ParameterMap, TEXT("MotionBlurParameters"));
+		//OutVelocityFlat.Bind(Initializer.ParameterMap, TEXT("OutVelocityFlat"));
+		//OutMaxTileVelocity.Bind(Initializer.ParameterMap, TEXT("OutMaxTileVelocity"));
+		OutColor.Bind(Initializer.ParameterMap, TEXT("OutColor"));
+	}
+
+	void SetCS( FRHICommandList& RHICmdList, const FRenderingCompositePassContext& Context, const FSceneView& View )
+	{
+		const FComputeShaderRHIParamRef ShaderRHI = GetComputeShader();
+
+		FGlobalShader::SetParameters<FViewUniformShaderParameters>(RHICmdList, ShaderRHI, Context.View.ViewUniformBuffer);
+		PostprocessParameter.SetCS(ShaderRHI, Context, Context.RHICmdList, TStaticSamplerState<SF_Point,AM_Clamp,AM_Clamp,AM_Clamp>::GetRHI());
+
+		//SetShaderValue(Context.RHICmdList, ShaderRHI, MotionBlurParameters, GetMotionBlurParameters( Context ) );
+	}
+	
+	/*
+	virtual bool Serialize(FArchive& Ar) override
+	{
+		bool bShaderHasOutdatedParameters = FGlobalShader::Serialize(Ar);
+		Ar << PostprocessParameter;
+		Ar << MotionBlurParameters;
+		Ar << OutVelocityFlat;
+		Ar << OutMaxTileVelocity;
+		return bShaderHasOutdatedParameters;
+	}
+	*/
+
+private:
+	FPostProcessPassParameters	PostprocessParameter;
+	//FShaderParameter			MotionBlurParameters;
+};
+
+IMPLEMENT_SHADER_TYPE(,FPostProcessMyProcess,TEXT("/Engine/Private/mypostprocess.usf"),TEXT("MyProcessMain"),SF_Compute);
+
+
+FRCPassPostProcessMyProcess::FRCPassPostProcessMyProcess()
+{}
+
+void FRCPassPostProcessMyProcess::Process(FRenderingCompositePassContext& Context)
+{
+	const FPooledRenderTargetDesc* InputDesc = GetInputDesc(ePId_Input0);
+
+	const FViewInfo& View = Context.View;
+
+	//SCOPED_DRAW_EVENTF(Context.RHICmdList, MotionBlur, TEXT("VelocityFlattenCS %dx%d"),
+	//	View.ViewRect.Width(), View.ViewRect.Height());
+
+	const FSceneRenderTargetItem& DestRenderTarget0 = PassOutputs[0].RequestSurface(Context);
+	const FSceneRenderTargetItem& DestRenderTarget1 = PassOutputs[1].RequestSurface(Context);
+
+	TShaderMapRef< FPostProcessMyProcess > ComputeShader( Context.GetShaderMap() );
+
+	// #todo-renderpasses remove once everything is renderpasses
+	UnbindRenderTargets(Context.RHICmdList);
+
+	Context.SetViewportAndCallRHI( View.ViewRect );
+	Context.RHICmdList.SetComputeShader(ComputeShader->GetComputeShader());
+
+	// set destination
+	Context.RHICmdList.SetUAVParameter(ComputeShader->GetComputeShader(), ComputeShader->OutColor.GetBaseIndex(), DestRenderTarget0.UAV);
+	//Context.RHICmdList.SetUAVParameter(ComputeShader->GetComputeShader(), ComputeShader->OutMaxTileVelocity.GetBaseIndex(), DestRenderTarget1.UAV);
+
+	ComputeShader->SetCS(Context.RHICmdList, Context, View);
+
+	FIntPoint ThreadGroupCountValue = GetMyNumTiles16x16(View.ViewRect.Size());
+	DispatchComputeShader(Context.RHICmdList, *ComputeShader, ThreadGroupCountValue.X, ThreadGroupCountValue.Y, 1);
+
+	//	void FD3D11DynamicRHI::RHIGraphicsWaitOnAsyncComputeJob( uint32 FenceIndex )
+	Context.RHICmdList.FlushComputeShaderCache();
+
+	// un-set destination
+	Context.RHICmdList.SetUAVParameter(ComputeShader->GetComputeShader(), ComputeShader->OutColor.GetBaseIndex(), NULL);
+	//Context.RHICmdList.SetUAVParameter(ComputeShader->GetComputeShader(), ComputeShader->OutMaxTileVelocity.GetBaseIndex(), NULL);
+
+	Context.RHICmdList.CopyToResolveTarget(DestRenderTarget0.TargetableTexture, DestRenderTarget0.ShaderResourceTexture, FResolveParams());
+	//Context.RHICmdList.CopyToResolveTarget(DestRenderTarget1.TargetableTexture, DestRenderTarget1.ShaderResourceTexture, FResolveParams());
+}
+
+FPooledRenderTargetDesc FRCPassPostProcessMyProcess::ComputeOutputDesc(EPassOutputId InPassOutputId) const
+{
+	
+	FPooledRenderTargetDesc Ret = GetInput(ePId_Input0)->GetOutput()->RenderTargetDesc;
+	
+	Ret.Reset();
+	Ret.ClearValue = FClearValueBinding::None;
+	Ret.Format = PF_FloatR11G11B10;
+	Ret.TargetableFlags |= TexCreate_UAV;
+	Ret.TargetableFlags |= TexCreate_RenderTargetable;
+	//Ret.Flags |= GFastVRamConfig.VelocityFlat;
+	Ret.DebugName = TEXT("my stuff");
+	
+	return Ret;
+	//return float4(0,1,0,1);
+	
+	/*if( InPassOutputId == ePId_Output0 )
+	{
+		// Flattened velocity
+		FPooledRenderTargetDesc Ret = GetInput(ePId_Input0)->GetOutput()->RenderTargetDesc;
+		Ret.Reset();
+		Ret.ClearValue = FClearValueBinding::None;
+		Ret.Format = PF_FloatR11G11B10;
+		Ret.TargetableFlags |= TexCreate_UAV;
+		Ret.TargetableFlags |= TexCreate_RenderTargetable;
+		Ret.Flags |= GFastVRamConfig.VelocityFlat;
+		Ret.DebugName = TEXT("VelocityFlat");
+
+		return Ret;
+	}
+	else
+	{
+		// Max tile velocity
+		FPooledRenderTargetDesc UnmodifiedRet = GetInput(ePId_Input0)->GetOutput()->RenderTargetDesc;
+		UnmodifiedRet.Reset();
+
+		FIntPoint PixelExtent = UnmodifiedRet.Extent;
+		FIntPoint TileCount = GetNumTiles16x16(PixelExtent);
+
+		FPooledRenderTargetDesc Ret(FPooledRenderTargetDesc::Create2DDesc(TileCount, PF_FloatRGBA, FClearValueBinding::None, TexCreate_None, TexCreate_RenderTargetable | TexCreate_UAV, false));
+		Ret.Flags |= GFastVRamConfig.VelocityMax;
+		Ret.DebugName = TEXT("MaxVelocity");
+
+		return Ret;
+	}
+	*/
+}
+
+/*
 #include "PostProcess/mypostprocess.h"
 #include "StaticBoundShaderState.h"
 #include "SceneUtils.h"
@@ -13,14 +245,15 @@
 #include "PostProcess/PostProcessEyeAdaptation.h"
 #include "ClearQuad.h"
 #include "PipelineStateCache.h"
+*/
 
-const int32 GBloomSetupComputeTileSizeX = 8;
-const int32 GBloomSetupComputeTileSizeY = 8;
+//const int32 GBloomSetupComputeTileSizeX = 8;
+//const int32 GBloomSetupComputeTileSizeY = 8;
 
 /** Encapsulates the post processing bloom threshold pixel shader. */
-class FmypostprocessPS : public FGlobalShader
-{
-	DECLARE_SHADER_TYPE(FmypostprocessPS, Global);
+//class FmypostprocessPS : public FGlobalShader
+//{
+//	DECLARE_SHADER_TYPE(FmypostprocessPS, Global);
 
 	//static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
 	//{
@@ -39,48 +272,48 @@ class FmypostprocessPS : public FGlobalShader
 	//}
 
 	/** Default constructor. */
-	FmypostprocessPS() {}
+//	FmypostprocessPS() {}
 
-public:
-	FPostProcessPassParameters PostprocessParameter;
-	FShaderParameter BloomThreshold;
+//public:
+	//FPostProcessPassParameters PostprocessParameter;
+	//FShaderParameter BloomThreshold;
 
 	/** Initialization constructor. */
-	FmypostprocessPS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
-		: FGlobalShader(Initializer)
-	{
-		PostprocessParameter.Bind(Initializer.ParameterMap);
-		BloomThreshold.Bind(Initializer.ParameterMap, TEXT("BloomThreshold"));
-	}
+	//FmypostprocessPS(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
+	//	: FGlobalShader(Initializer)
+	//{
+	//	PostprocessParameter.Bind(Initializer.ParameterMap);
+	//	BloomThreshold.Bind(Initializer.ParameterMap, TEXT("BloomThreshold"));
+	//}
 
 	
-	template <typename TRHICmdList>
-	void SetPS(TRHICmdList& RHICmdList, const FRenderingCompositePassContext& Context)
-	{
-		const FPixelShaderRHIParamRef ShaderRHI = GetPixelShader();
+	//template <typename TRHICmdList>
+	//void SetPS(TRHICmdList& RHICmdList, const FRenderingCompositePassContext& Context)
+	//{
+	//	const FPixelShaderRHIParamRef ShaderRHI = GetPixelShader();
 
-		const FPostProcessSettings& Settings = Context.View.FinalPostProcessSettings;
+	//	const FPostProcessSettings& Settings = Context.View.FinalPostProcessSettings;
 
-		FGlobalShader::SetParameters<FViewUniformShaderParameters>(RHICmdList, ShaderRHI, Context.View.ViewUniformBuffer);
+	//	FGlobalShader::SetParameters<FViewUniformShaderParameters>(RHICmdList, ShaderRHI, Context.View.ViewUniformBuffer);
 
-		PostprocessParameter.SetPS(RHICmdList, ShaderRHI, Context, TStaticSamplerState<SF_Bilinear, AM_Clamp, AM_Clamp, AM_Clamp>::GetRHI());
+		//PostprocessParameter.SetPS(RHICmdList, ShaderRHI, Context, TStaticSamplerState<SF_Bilinear, AM_Clamp, AM_Clamp, AM_Clamp>::GetRHI());
 
-		const float FixedExposure = FRCPassPostProcessEyeAdaptation::GetFixedExposure(Context.View);
+	//	const float FixedExposure = FRCPassPostProcessEyeAdaptation::GetFixedExposure(Context.View);
 
-		FVector4 BloomThresholdValue(Settings.BloomThreshold, 0, 0, FixedExposure);
-		SetShaderValue(RHICmdList, ShaderRHI, BloomThreshold, BloomThresholdValue);
-	}
+	//	FVector4 BloomThresholdValue(Settings.BloomThreshold, 0, 0, FixedExposure);
+	//	SetShaderValue(RHICmdList, ShaderRHI, BloomThreshold, BloomThresholdValue);
+	//}
 	
 	// FShader interface.
-	virtual bool Serialize(FArchive& Ar) override
-	{
-		bool bShaderHasOutdatedParameters = FGlobalShader::Serialize(Ar);
-		Ar << PostprocessParameter << BloomThreshold;
-		return bShaderHasOutdatedParameters;
-	}
-};
+	//virtual bool Serialize(FArchive& Ar) override
+	//{
+	//	bool bShaderHasOutdatedParameters = FGlobalShader::Serialize(Ar);
+	//	Ar << PostprocessParameter << BloomThreshold;
+	//	return bShaderHasOutdatedParameters;
+	//}
+//};
 
-IMPLEMENT_SHADER_TYPE(,FmypostprocessPS,TEXT("/Engine/Private/mypostprocess.usf"),TEXT("MainPS"),SF_Pixel);
+//IMPLEMENT_SHADER_TYPE(,FmypostprocessPS,TEXT("/Engine/Private/mypostprocess.usf"),TEXT("MainPS"),SF_Pixel);
 
 
 /** Encapsulates the post processing bloom setup vertex shader. */
